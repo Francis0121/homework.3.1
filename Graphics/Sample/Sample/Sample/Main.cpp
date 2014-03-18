@@ -2,6 +2,7 @@
 
 void practice1();
 void practice2();
+void practice3();
 
 void init();
 
@@ -15,7 +16,7 @@ int main(int argc, char* argv[])
 
 	init();
 	// Callback 함수를 계속 바꿈
-	glutDisplayFunc(practice2); // callback 함수를 등록한다. 실행하는 것 X 
+	glutDisplayFunc(practice3); // callback 함수를 등록한다. 실행하는 것 X 
 	glutMainLoop(); 
 
 	return 0;
@@ -75,6 +76,37 @@ void practice2()
 
 	// Practice 2. 3차원에 두가지를 그림
 
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glBegin(GL_POLYGON);
+	glVertex3f( 0.25f, 0.25f, -0.25f);
+	glVertex3f(-0.25f, 0.25f, -0.25f);
+	glVertex3f(-0.25f, -0.25f, -0.25f);
+	glVertex3f( 0.25f, -0.25f, -0.25f);
+	glEnd();
+
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_POLYGON);
+	glVertex3f( 0.5f, 0.5f, -0.5f);
+	glVertex3f(-0.5f, 0.5f, -0.5f);
+	glVertex3f(-0.5f, -0.5f, -0.5f);
+	glVertex3f( 0.5f, -0.5f, -0.5f);
+	glEnd();
+
+	glFlush();
+}
+
+// Extrinsic parameter Pdf 40.page
+void practice3(){
+	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glMatrixMode(GL_MODELVIEW);// MODEL(사각형) VIEW(Camera) 를 지정할 것이다라고 말해주는 역할
+	glLoadIdentity();
+	gluLookAt(	0.5f, 0.5f, 0.0f, // Position 위치
+				0.0f, 0.0f, -0.25f, // Orientation 방향 : 그 지점을 바라보고 있다.
+				0.0f, 1.0f, 0.0f); // 카메라의 위 방향을 선택
+
+	// 2개의 사각형
 	glColor3f(0.0f, 1.0f, 0.0f);
 	glBegin(GL_POLYGON);
 	glVertex3f( 0.25f, 0.25f, -0.25f);
