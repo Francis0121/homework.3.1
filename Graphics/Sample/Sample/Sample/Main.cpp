@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 
 	init();
 	// Callback 함수를 계속 바꿈
-	glutDisplayFunc(practice1); // callback 함수를 등록한다. 실행하는 것 X 
+	glutDisplayFunc(practice2); // callback 함수를 등록한다. 실행하는 것 X 
 	glutMainLoop(); 
 
 	return 0;
@@ -25,6 +25,7 @@ void init()
 {
 	// RGB Color를 RGB로 변경 http://www.opengl.org/discussion_boards/showthread.php/139274-How-to-Convert-from-RGB-255-to-OpenGL-Float-Color 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // RGBA
+	glEnable(GL_DEPTH_TEST); // practice 2 부분에서 추가
 	glMatrixMode(GL_PROJECTION); 
 	glLoadIdentity(); 
 	// 카메라를 기준으로 얼만큼의 volume을 볼것인가?에대한 정의를 할 수 있는 함수
@@ -39,7 +40,7 @@ void practice1()
 	/** Practice 02. 추가사항 */
 	// glClear : 화면을 깨끗하게 지워라 
 	// monitor clear XXXXX --- Frame buffer (그림을 그릴 수 있는 canvas) 삭제 
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT ); 
 
 	// 내가 넣은 정보는 각 vertex에 대한 정보만 넣었고 그에 대한 색상만 줬는데
 	// 각각에 대한 정보를 이용하여 polygon을 만들고 그것들을 pixcels로 구성해준다.
@@ -70,7 +71,7 @@ void practice1()
 
 void practice2()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// 'GL_DEPTH_BUFFER_BIT' practice 2 에서 추가
 
 	// Practice 2. 3차원에 두가지를 그림
 
