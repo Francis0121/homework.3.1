@@ -15,13 +15,13 @@ for fileName in (files):
     lineCount = 0
     while 1: 
         line = inputFile.readline()
-        line.lstrip().rstrip()
+        line = line.strip()
         if not line: break
         lineCount+=1
         outputFile.write(line)
         words = line.split(' ')
         for word in (words):
-            word = word.lstrip().rstrip() #앞 뒤 공백제거
+            word = word.strip() #앞 뒤 공백제거
             if not word: continue # word에 데이터가 있는지 확인
             wordCount+=1
 

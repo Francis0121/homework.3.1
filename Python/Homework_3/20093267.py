@@ -1,4 +1,5 @@
 # -*- coding: cp949 -*-
+# --- import ---
 import sys
 import re
 import glob
@@ -17,7 +18,7 @@ def stringMatchFile(fileName, string) :
 
     while 1:
         line = inputFile.readline()
-        line.strip()
+        line = line.strip()
         if not line: break
 
         isPrint = 0
