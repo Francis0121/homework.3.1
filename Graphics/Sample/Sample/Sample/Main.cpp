@@ -174,7 +174,7 @@ void mousewheel(int wheel, int direction, int x, int y){
 	if(direction < 0)	// Zoom in
 		fovy *= 0.8;
 	else if(direction > 0)	// Zoom out
-		fovy *=1.2;
+		fovy *= 1.2;
 
 	//Zoom-In, Zoom-Out [Step 6]. Intrinsic 으로 다시 그리기 위해서 아래 Method를 추가
 	glMatrixMode(GL_PROJECTION);
