@@ -148,7 +148,7 @@ void reshape(int w, int h){
 	glViewport(0, 0, width, height);
 
 	// 현재 Window 사이즈를 값을 가져다가 렌즈값을 변경한다.
-	double aspect = (GLdouble) width / (GLdouble) height; 
+	aspect = (GLdouble) width / (GLdouble) height; 
 
 	// setting intrinsic parameters of camera
 	glMatrixMode(GL_PROJECTION);
@@ -176,6 +176,10 @@ void mousewheel(int wheel, int direction, int x, int y){
 	else if(direction > 0)	// Zoom out
 		fovy *=1.2;
 
+	//Zoom-In, Zoom-Out [Step 6]. Intrinsic 으로 다시 그리기 위해서 아래 Method를 추가
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(fovy, aspect, 0.01, 10000.0);
 	// force to redisplay
 	// ...
 	
