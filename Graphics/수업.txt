@@ -1,0 +1,35 @@
+- Perspective Example
+glMatrixMode(GL_PROJECTION);
+...
+gluPerperspetive(	60.0,		//화각
+		w/(GLdouble)h)	//화면비율
+		0.1, 20.0		);//near, far
+		카메라에서 앞에서 시점까지 0.1
+		시점에서 뒤까지 20.0
+- Orhtographic Example
+..
+..
+glOrtho( 1,2 ,3 ,4 , 5, 6) 을이용한다.
+
+Viewport ( 를 어떻게 설정하느냐에 따라서 크기게 다르게 사진을 인화 할 수 있다.)
+-사진의 크기 사이즈
+-내가 가지고있는 모니터 픽셀 사이즈 만큼 보통정한다.
+
+	결과물을 어디에 위치 시킬것인가(지정)
+	-x, y w, h
+	-(x, y) view port 위치
+	-(w, h) 우리가 가지는 창과 똑같음
+
+	언제 viewport하는 것이 좋을까?
+	-게임에서 미니맵(두번의 랜더링) 원래화면을 제공하고 미니맵을 3D 위치로 제공하는 경우
+
+Aspect ratio
+-필름의 비율이 결정이 된다.(실제 사이지가 중요한게 아니고 비율 600/800 과 같은 비율이 중요하다)
+-비율을 정상적으로 주는경우는 정상적으로 보여지지만 이렇지 않을 경우 제대로 보이지 않는다.
+
+Camera specification
+이 세가지가 적용되야 된다
+-Viewport
+-Entrinsic parameter
+-Intrinsic parameter 
+

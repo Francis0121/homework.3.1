@@ -3,6 +3,7 @@
 void practice1();
 void practice2();
 void practice3();
+void reshape(int w, int h);
 
 void init();
 
@@ -16,7 +17,7 @@ int main(int argc, char* argv[])
 
 	init();
 	// Callback 함수를 계속 바꿈
-	glutDisplayFunc(practice3); // callback 함수를 등록한다. 실행하는 것 X 
+	glutDisplayFunc(reshape); // callback 함수를 등록한다. 실행하는 것 X 
 	glutMainLoop(); 
 
 	return 0;
@@ -124,4 +125,21 @@ void practice3(){
 	glEnd();
 
 	glFlush();
+}
+
+void reshape(int w, int h){
+	// setting viewport
+	int width = w;
+	int height = h;
+	
+	glViewport(0, 0, width, height);
+
+	int aspect = (GLdouble) width / (GLdouble) height;
+
+	// setting intrinsic parameters of camera
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60.0, aspect, 0.01, 10000.0);
+	// glOrtho(left, right, bootom, top, zNea, zFar
+
 }
