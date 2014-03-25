@@ -33,3 +33,6 @@ Camera specification
 -Entrinsic parameter
 -Intrinsic parameter 
 
+---- Reshape 함수 추가
+
+Zoom-In, Zoom-out에 대한것

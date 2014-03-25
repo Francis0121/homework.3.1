@@ -4,8 +4,11 @@ void practice1();
 void practice2();
 void practice3();
 void reshape(int w, int h);
+void mousewheel(int wheel, int direction, int x, int y);
 
 void init();
+
+double fovy = 60.0;
 
 // glut를 이용해서 opengl을 사용하기위한 밑작업을 한 것. 
 int main(int argc, char* argv[])
@@ -156,4 +159,18 @@ void reshape(int w, int h){
 
 	// practice3() 을 하면 안된다. (이유 : 윈도우에 메시지를 전송할 수 없음으로)
 	glutPostRedisplay(); 
+}
+
+
+// [14.03.25]
+// Step 1. fovy 를 전역변수로 60.0으로 지정하고 Zoom_in Zoom_out에 대한 것 함수 작성
+void mousewheel(int wheel, int direction, int x, int y){
+
+	if(direction < 0)	// Zoom in
+		fovy *= 0.8;
+	else if(direction > 0)	// Zoom out
+		fovy *=1.2;
+
+	// force to redisplay
+	// ...
 }
