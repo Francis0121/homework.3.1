@@ -11,13 +11,14 @@ void init();
 int main(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
-	glutInitWindowSize(800, 800);
+	glutInitWindowSize(400, 400);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH); // ' GLUT_DEPTH ' 부분을 practice 2 추가시 사용
 	glutCreateWindow("simple");
 
 	init();
 	// Callback 함수를 계속 바꿈
-	glutDisplayFunc(reshape); // callback 함수를 등록한다. 실행하는 것 X 
+	glutDisplayFunc(practice3); // callback 함수를 등록한다. 실행하는 것 X 
+	glutReshapeFunc(reshape); // Window 사이즈가 변경되었을때 부르는 함수.
 	glutMainLoop(); 
 
 	return 0;
@@ -127,6 +128,8 @@ void practice3(){
 	glFlush();
 }
 
+// Step 1. 카메라의  Viewport를 바꿔주고, Perspective 관점을 적용해준다.
+// Step 2. 적용해준 사항에 대해서 다시 그리라고 메시지를 전송해 주어야 한다. glutPostRedisplay() 함수 이용
 void reshape(int w, int h){
 	// setting viewport
 	int width = w;
@@ -134,7 +137,8 @@ void reshape(int w, int h){
 	
 	glViewport(0, 0, width, height);
 
-	int aspect = (GLdouble) width / (GLdouble) height;
+	// 현재 Window 사이즈를 값을 가져다가 렌즈값을 변경한다.
+	double aspect = (GLdouble) width / (GLdouble) height; 
 
 	// setting intrinsic parameters of camera
 	glMatrixMode(GL_PROJECTION);
@@ -142,4 +146,9 @@ void reshape(int w, int h){
 	gluPerspective(60.0, aspect, 0.01, 10000.0);
 	// glOrtho(left, right, bootom, top, zNea, zFar
 
+	// force to redisplay
+	// ...
+
+	// practice3() 을 하면 안된다. (이유 : 윈도우에 메시지를 전송할 수 없음으로)
+	glutPostRedisplay(); 
 }
