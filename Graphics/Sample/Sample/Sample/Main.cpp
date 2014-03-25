@@ -1,4 +1,4 @@
-#include <gl/glut.h>
+#include <gl/freeglut.h> // Zoom-In, Zoom-Out [Step 4]. glut.h -> freeglut.h로 변경
 
 void practice1();
 void practice2();
@@ -9,6 +9,7 @@ void mousewheel(int wheel, int direction, int x, int y);
 void init();
 
 double fovy = 60.0;
+double aspect = 1.0; // Zoom-In, Zoom-Out [Step 2] aspect 값도 전역을 ㅗ추가
 
 // glut를 이용해서 opengl을 사용하기위한 밑작업을 한 것. 
 int main(int argc, char* argv[])
@@ -22,6 +23,7 @@ int main(int argc, char* argv[])
 	// Callback 함수를 계속 바꿈
 	glutDisplayFunc(practice3); // callback 함수를 등록한다. 실행하는 것 X 
 	glutReshapeFunc(reshape); // Window 사이즈가 변경되었을때 부르는 함수. Callback 함수 지정
+	glutMouseWheelFunc(mousewheel);// Zoom-In, Zoom-Out [Step 5] glutMouseWheelFunc에 대한 이벤트 추가
 	glutMainLoop();	//	★[13.03.25]-가장 중요한 부분이다.
 					//	여기서 Message Procedure가 계속해서 돌아가면서
 					//	switch 문을 통해서 Display 하게되면 practice 를 해라
@@ -151,7 +153,9 @@ void reshape(int w, int h){
 	// setting intrinsic parameters of camera
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, aspect, 0.01, 10000.0);
+	// gluPerspective(60.0, aspect, 0.01, 10000.0);
+	// Step. 2
+	gluPerspective(fovy, aspect, 0.01, 10000.0);
 	// glOrtho(left, right, bootom, top, zNea, zFar
 
 	// force to redisplay
@@ -163,7 +167,8 @@ void reshape(int w, int h){
 
 
 // [14.03.25]
-// Step 1. fovy 를 전역변수로 60.0으로 지정하고 Zoom_in Zoom_out에 대한 것 함수 작성
+// Zoom-In, Zoom-Out [Step 1]. fovy 를 전역변수로 60.0으로 지정하고 Zoom_in Zoom_out에 대한 것 함수 작성
+// Zoom-In, Zoom-Out [Step 3]. glutPostRedisplay(); 추가
 void mousewheel(int wheel, int direction, int x, int y){
 
 	if(direction < 0)	// Zoom in
@@ -173,4 +178,6 @@ void mousewheel(int wheel, int direction, int x, int y){
 
 	// force to redisplay
 	// ...
+	
+	glutPostRedisplay();
 }
