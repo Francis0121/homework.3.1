@@ -6,14 +6,8 @@ import glob
 import os
 
 # --- Method ---
-def checkSystemArgument(args):
-    if not args or args[0] != "grep" or len(args) != 3:
-        #print("%s" %args[0])
-        print("ABC")
-    
+def checkSystemArgument(args): 
     if ( (not args) or (args[0] != "grep") or (len(args) != 3) or (not args[1]) or (not args[2])) :
-        print(len(args))
-        print(args[3])
         print("Please enter command : \n\tgrep 'statement' 'fileName' \n\tgrep 'statement' 'directory'")
         return 0
     return 1
