@@ -1,0 +1,25 @@
+(defun average (x y) (/ (+ x y) 2))
+
+(defun fact (n)
+	(cond ( (<= n 1) 1 )
+	      ( t (* n (fact (1- n))))))
+
+(defun append2 (x y)
+	(cond ( (null (cdr x)) (cons (car x) y) )
+	      ( t  (cons (car x) (append (cdr x) y)) )
+	)
+)
+
+(defun reverse2 (x)
+	(cond ( (atom x) x )
+	      ( (null (cdr x)) x )
+	      ( t (append (reverse2 (cdr x)) (list (car x))) )
+	)
+)
+
+(defun reverse-all (x)
+	(cond ( (atom x) x )
+	      ( (null (cdr x)) x )
+	      ( t (append (reverse-all (cdr x)) (list (reverse-all (car x)))) )
+	)
+)
