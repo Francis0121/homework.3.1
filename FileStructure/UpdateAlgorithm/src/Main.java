@@ -16,7 +16,13 @@ public class Main {
 
 	public static void main(String[] args) {
 		Logger logger = LoggerFactory.getLogger(Main.class);
+
+		Reader reader = new Reader();
+		ReadList readList = reader.readExcel(ABSOLUTE_PATH);
+		logger.info(readList.toString());
 		
+		Writer writer = new Writer(readList);
+		writer.writeExcle(ABSOLUTE_PATH);
 	}
 
 }
