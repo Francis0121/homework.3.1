@@ -43,7 +43,7 @@ while( nextTransaction < transaction.size && nextMaster < master.size){
         D :
           nextTransaction
           nextMaster
-        defalt :
+        default :
           ERROR : INVALID
           nextTransaction
       }
