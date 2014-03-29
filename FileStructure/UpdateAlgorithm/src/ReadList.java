@@ -1,6 +1,13 @@
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Francis
+ * 
+ * @version 0.1
+ * 
+ * @since 14.03.29
+ */
 public class ReadList {
 
 	private List<User> notSortedTransactionUser;

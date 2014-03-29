@@ -1,5 +1,12 @@
 package exception;
 
+/**
+ * @author Francis
+ * 
+ * @version 0.1
+ * 
+ * @since 14.03.29
+ */
 @SuppressWarnings("serial")
 public class ReadTypeException extends RuntimeException {
 	@Override

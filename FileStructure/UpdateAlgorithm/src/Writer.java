@@ -17,6 +17,9 @@ import util.SheetName;
 /**
  * @author Francis
  * 
+ * @version 0.1
+ * 
+ * @since 14.03.29
  */
 public class Writer {
 
@@ -31,25 +34,26 @@ public class Writer {
 	public Writer(ReadList readList) {
 		this.readList = readList;
 	}
-	
-	public void writeExcle(String path){
-		if(readList == null)
+
+	public void writeExcle(String path) {
+		if (readList == null)
 			throw new RuntimeException();
-	
+
 		try {
 			XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(path));
 
-			XSSFSheet sheet = workbook.createSheet(SheetName.NEW_MASTER.getText());
+			XSSFSheet sheet = workbook.createSheet(SheetName.NEW_MASTER
+					.getText());
 			XSSFRow row = sheet.createRow(0);
-						
+
 			Map<Integer, String> masterLabel = readList.getMasterLabel();
-			for(int i=0; i<masterLabel.size(); i++){
+			for (int i = 0; i < masterLabel.size(); i++) {
 				XSSFCell cell = row.createCell(i);
 				cell.setCellValue(masterLabel.get(i));
 			}
-			
+
 			updateAlogorithm(sheet);
-			
+
 			FileOutputStream stream = null;
 			stream = new FileOutputStream(path);
 			workbook.write(stream);
@@ -61,123 +65,144 @@ public class Writer {
 			logger.error("IO Exception");
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-	private void updateAlogorithm(XSSFSheet sheet){
+
+	private void updateAlogorithm(XSSFSheet sheet) {
 		List<User> transactionUser = readList.getNotSortedTransactionUser();
 		transactionUser.sort(new User());
 		List<User> masterUser = readList.getSortedMasterUser();
-			
+
 		int tPoint = 0;
 		int mPoint = 0;
 		int row = 1;
-		
+
 		User tUser = transactionUser.get(tPoint);
 		User mUser = masterUser.get(mPoint);
-		
-		while(tPoint < transactionUser.size() && mPoint < masterUser.size() ){
-			if(mUser.getKey() < tUser.getKey() ){
+
+		while (tPoint < transactionUser.size() && mPoint < masterUser.size()) {
+			if (mUser.getKey() < tUser.getKey()) {
 				writeRow(sheet, mUser, row++);
-				if(++mPoint < masterUser.size()){
+				if (++mPoint < masterUser.size()) {
 					mUser = masterUser.get(mPoint);
 				}
-			}else{
+			} else {
 				String updateCode = tUser.getUpdateCode();
 				if (mUser.getKey() == tUser.getKey()) {
 					if (updateCode.equals("I")) {
 						logger.error("Duplicate record Key");
-						if(++tPoint < transactionUser.size()){
+						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
-					}else if (updateCode.equals("U")) {
+					} else if (updateCode.equals("U")) {
 						User uUser = new User(mUser.getKey(),
-								tUser.getFamilyName() != null ? tUser.getFamilyName() : mUser.getFamilyName(),
 								tUser.getFirstName() != null ? tUser.getFirstName() : mUser.getFirstName(),
+								tUser.getFamilyName() != null ? tUser.getFamilyName() : mUser.getFamilyName(),
 								tUser.getAge() != null ? tUser.getAge() : mUser.getAge());
-					
+
 						writeRow(sheet, uUser, row++);
-						
-						if(++mPoint < masterUser.size()){
+
+						if (++mPoint < masterUser.size()) {
 							mUser = masterUser.get(mPoint);
 						}
-						if(++tPoint < transactionUser.size()){
+						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
-					}else if (updateCode.equals("D")) {
-						if(++mPoint < masterUser.size()){
+					} else if (updateCode.equals("D")) {
+						if (++mPoint < masterUser.size()) {
 							mUser = masterUser.get(mPoint);
 						}
-						if(++tPoint < transactionUser.size()){
+						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
-						}	
-					}else{
+						}
+					} else {
 						logger.error("Invalid update code");
-						if(++tPoint < transactionUser.size()){
+						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
-						}	
+						}
 					}
-				}else{
+				} else {
 					if (updateCode.equals("I")) {
 						writeRow(sheet, tUser, row++);
-						if(++tPoint < transactionUser.size()){
+						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
-					}else if (updateCode.equals("U")) {
+					} else if (updateCode.equals("U")) {
 						logger.error("No matching master record for trans key");
-						if(++tPoint < transactionUser.size()){
+						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
-					}else if (updateCode.equals("D")) {
+					} else if (updateCode.equals("D")) {
 						logger.error("No matching master record for trans key");
-						if(++tPoint < transactionUser.size()){
+						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
-					}else{
+					} else {
 						logger.error("Invalid update code");
-						if(++tPoint < transactionUser.size()){
+						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
-						}	
+						}
 					}
 				}
 			}
 		}
-		
-		for(int i = tPoint; i < transactionUser.size(); i++){
-			writeRow(sheet, tUser, row++);
+
+		for (int i = tPoint; i < transactionUser.size(); i++) {
 			tUser = transactionUser.get(i);
+			String updateCode = tUser.getUpdateCode();
+			if (updateCode.equals("I")) {
+				writeRow(sheet, tUser, row++);
+				if (++tPoint < transactionUser.size()) {
+					tUser = transactionUser.get(tPoint);
+				}
+			} else if (updateCode.equals("U")) {
+				logger.error("No matching master record for trans key");
+				if (++tPoint < transactionUser.size()) {
+					tUser = transactionUser.get(tPoint);
+				}
+			} else if (updateCode.equals("D")) {
+				logger.error("No matching master record for trans key");
+				if (++tPoint < transactionUser.size()) {
+					tUser = transactionUser.get(tPoint);
+				}
+			} else {
+				logger.error("Invalid update code");
+				if (++tPoint < transactionUser.size()) {
+					tUser = transactionUser.get(tPoint);
+				}
+			}
 		}
-		
-		for(int i = mPoint; i < masterUser.size(); i++){
+
+		for (int i = mPoint; i < masterUser.size(); i++) {
 			tUser = masterUser.get(i);
 			writeRow(sheet, mUser, row++);
 		}
 	}
-	
-	private void writeRow(XSSFSheet sheet, User user, int rowNum){
-		XSSFRow row =  sheet.createRow(rowNum);
+
+	private void writeRow(XSSFSheet sheet, User user, int rowNum) {
+		XSSFRow row = sheet.createRow(rowNum);
 		Map<Integer, String> masterLabel = readList.getMasterLabel();
-		for(int i=0; i<masterLabel.size(); i++){
+		for (int i = 0; i < masterLabel.size(); i++) {
 			XSSFCell cell = row.createCell(i);
 			String label = masterLabel.get(i);
 			if (label.equals("KEY")) {
 				cell.setCellValue(user.getKey());
 			} else if (label.equals("AGE")) {
-				if(user.getAge() == null)
+				if (user.getAge() == null)
 					cell.setAsActiveCell();
 				else
-					cell.setCellValue(user.getAge());				
+					cell.setCellValue(user.getAge());
 			} else if (label.equals("FIRST_NAME")) {
-				if(user.getFirstName() == null)
+				if (user.getFirstName() == null)
 					cell.setAsActiveCell();
 				else
 					cell.setCellValue(user.getFirstName());
 			} else if (label.equals("FAMILY_NAME")) {
-				if(user.getFamilyName() == null)
+				if (user.getFamilyName() == null)
 					cell.setAsActiveCell();
 				else
 					cell.setCellValue(user.getFamilyName());
-			} 
+			}
 		}
 	}
 }

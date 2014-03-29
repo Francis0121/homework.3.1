@@ -2,6 +2,13 @@ package util;
 
 import org.apache.poi.xssf.usermodel.XSSFCell;
 
+/**
+ * @author Francis
+ * 
+ * @version 0.1
+ * 
+ * @since 14.03.29
+ */
 public class Util {
 
 	public static Integer getCellType(String label) {
