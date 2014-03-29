@@ -67,7 +67,20 @@ while( nextTransaction < transaction.size && nextMaster < master.size){
 }
 
 for( i = tPos ; i < transaction.size ; i++ ) // transaction.position
-  writeExcel
+  switch(updateCode){
+    I :
+      writeExcel(New)
+      nextTransaction
+    U :
+      ERROR : No match Master key
+      nextTransaction
+    D :
+      ERROR : No match Master key
+      nextTransaction
+    default :
+      ERROR : INVALID
+      nextTransaction
+  }
   
 for( i = mPos ; i < master.size ; i++ ) // master.position
   writeExcel
