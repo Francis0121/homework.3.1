@@ -1,0 +1,222 @@
+- Perspective Example
+glMatrixMode(GL_PROJECTION);
+...
+gluPerperspetive(	60.0,		//화각
+		w/(GLdouble)h)	//화면비율
+		0.1, 20.0		);//near, far
+		카메라에서 앞에서 시점까지 0.1
+		시점에서 뒤까지 20.0
+- Orhtographic Example
+..
+..
+glOrtho( 1,2 ,3 ,4 , 5, 6) 을이용한다.
+
+Viewport ( 를 어떻게 설정하느냐에 따라서 크기게 다르게 사진을 인화 할 수 있다.)
+-사진의 크기 사이즈
+-내가 가지고있는 모니터 픽셀 사이즈 만큼 보통정한다.
+
+	결과물을 어디에 위치 시킬것인가(지정)
+	-x, y w, h
+	-(x, y) view port 위치
+	-(w, h) 우리가 가지는 창과 똑같음
+
+	언제 viewport하는 것이 좋을까?
+	-게임에서 미니맵(두번의 랜더링) 원래화면을 제공하고 미니맵을 3D 위치로 제공하는 경우
+
+Aspect ratio
+-필름의 비율이 결정이 된다.(실제 사이지가 중요한게 아니고 비율 600/800 과 같은 비율이 중요하다)
+-비율을 정상적으로 주는경우는 정상적으로 보여지지만 이렇지 않을 경우 제대로 보이지 않는다.
+
+Camera specification
+이 세가지가 적용되야 된다
+-Viewport
+-Entrinsic parameter
+-Intrinsic parameter 
+
+---- Reshape 함수 추가
+
+Zoom-In, Zoom-out에 대한것
+
+================================================================
+14.04.01
+
+Extrinisic parameters					
+pitch, yaw, rolll					
+-gluLookAt() 함수를 이용한다.				
+GL_MODELVIEW 로 지정 함(glMatrixMode) 추후설명
+
+↔
+
+Intrinsic parameter
+zoom-in zoom-out
+(Perspecive))gluPerspetive() || (Ortagonalty?)glOrtho()
+
+
+Viewport를 설정하는 방법
+내가 가진 윈도우에서 어디에 상이 보일 것 인가를 
+(x, y)로 지정하여 지점을 정하고 w(width) h(height) 를 높이와 너비를 정한다
+
+Aspect ratio
+
+Open GL Code 
+viewport - glViewport();
+
+Extrinisic	glMatrixMode(GL_MODELVIEW)
+	gluLookAt()
+
+Intrinsic	glMatrixMode(GL_PROJECTION)
+	glPerspective(), glOtho()
+
+--------------------------------------------------
+Camera movements
+3D position : 	(1) Truck(트럭을 타고 옆으로 카메라가 보는 방향은 유지 되있음 - 사람을 보면서 가는것아님!)
+		- gluLookAt 을 이용 하는경우 eyex 와 centerx 가 동일 하게 증가 또는 감소 되어져야한다. 
+		(2) Pedstal(높이 조절이 되는 원탁 선반 위아래 높이 조절)
+		- gluLookAt 을 이용하는 경우 eyey 와 centery가 동일하게 증가 또는 감소 되어져야한다.
+		(3) Dolly(앞으로갔다가 뒤로 갔다가) ★★ Zoom-in zoom out과는 다르다!
+		- gluLookAt을 이용하여 eyez centeryz
+
+Orientation		(1) Tilt (고정된 상태 위아래 )
+		-gluLookAt 을 이용하는 경우 centerx 와 upx 를 조정해야되는데 
+		centerx만 해도 upx가 90도로 보정이된다.
+		(2) Pan
+		-gluLookAt를 이용하는경우 centerx		
+		(3) Roll( 고정된상태에서 양옆으로 )
+		- gluLookAt up	
+
+-------------------------------------------------
+Model을 가져오는 방식
+
+- Modeling Tool 을 이용하여 Artist가 만들어준것을
+
+- Real World에 있는것을 캠쳐하는 방식
+
+Data for synthetic object
+(1) 3D model :	(1.1) vertices (vertex 의 집합) + 
+		(1.2) Faces( Polygon-vertex indices for each faces)
+(2) Texture Image
+
+	Example 
+		SImple polygon model  ( 8 vertices, 5 faces )
+
+		[1] Polygon soup
+		-Duplication of vertex information 
+		(가장 단순한 방법 polygon 단위로 vertex를 다 저장하는 것)
+		(정점은 반시계 방향으로 표시한다.
+			만약에 삼각형을 이루는 세좌표를 표시한다면
+			( x,y,z ) , (x2,y2,z2), (x3,y3,z3) 로 표시한다.
+			glBegin ---vertex 작성 - glEnd			
+		(값 중복 많이됨)	
+
+		[2] Polygon data transmission
+		-  2 triangle, 3 quard
+			glBegin - glTriangles -	vetex 작성 - glEnd
+			glBegin - glQuards -vertex 작성 -glEnd
+		( 적당히 끊어서 그리기 가능, but 중복 해결 x)
+	
+		[3] Vertex list & polygons
+		- Duplication of verex indices
+		각각 vertex한것으로 배열을 주고
+		polygon 은 배열의 index을 줘서 연결한다.
+		( x, y,z 표현이 배열로 들어갔음으로 줄어 들 수 있다.(
+
+		[4] Polygon data transmission
+		- list를 주는데 [2]처럼 사용
+		
+-------------------------------------------------
+
+Triangle Meshes
+
+모든 도형을 삼각형 화 시키는 것. 4각형->2개 5각형- -<3개
+	Triangulation
+		- 이점  : 모두 삼각형화가 가능하다.
+		- 하드웨어에 접합한 시트템을 확인 가능
+
+	랜더링은 AIP 넣고 사용하면됨
+
+More of Triangle Mesh
+Adbantage - 블럭 단위로 계산하기 되게 편한다.
+
+사각형을 다 지워버리고
+삼각형만 이루어지도록 해버렸다
+
+High Speed, Suitable to embedded systems 
+등의 이유로 한것이다
+
+-------------------------------------------------
+Vertex Arrays
+매 Frame 마다 형상을 표현하는 정보를 System Memory에서 GPU로보내는 방법을 말한다.
+
+Memory	→ 	Video Memory in GPU
+Client Side라 부름	Server side라 부름
+
+Vertex Buffer Object(VBOS)
+배경에 대한 정보같은 경우 잘 바뀌지 않은 것을 GPU Memory에서 계속 돌린다.
+(한번 받은 GPU를 더 처리하지 않는다.)
+(추후 다시 할건데
+
+Only 1 -time at initialization Rendring
+
+-------------------------------------------------
+Block 기반으로 하는 방법 ( Embedde 에서는 이것만 지원함 )
+
+- Vertex Arrays(☆☆☆ 이것 만 쓸꺼)
+	Enable Array
+		glEnableClientState() // 정점 정보 지정?
+	Specify Data
+		glVertexPointer() // 정점 알려줌
+		glColorPinter() // 색상
+		
+	Render with	
+	glDrawArrays(), glDrawElements()
+
+-------------------------------------------------
+
+Polygon soup
+1. Enable Arrays
+2. Specify Data(polygon soup)
+3. Render with glDrawArray()
+
+Vertex List & Polygons
+1. Enables Array
+2. Specify Data(vertex list & polygons)
+3. Render with glDrawElements()
+
++ indices[] = { 0,1, 2, 1, 3, 2 } (이것으로 어떤 것을 가져다가 넣는 지 표현)
+
+-------------------------------------------------
+
+Seperate Arrays
+
+color 와 vertices 를 각각의 배열에 저장시킨다.
+
+vertices
+x,y,z
+colors
+r,g,b,a
+
+Interleaved Arrays
+
+interwinded
+
+x,y,z,r,g,b,a
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
