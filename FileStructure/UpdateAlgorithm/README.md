@@ -86,4 +86,16 @@ for( i = mPos ; i < master.size ; i++ ) // master.position
   writeExcel
 ```
 
-<h4>version 0.2 [14.03.30]</h4>
+<h4>version 0.2 [14.04.01]</h4>
+
+1. Master File 구성 변경 UpdateAlogrithm.xlsx OldMaster Sheet
+- 2의배수로 정렬 되있다고 가정 ( 2 4 6 ... 20 )
+2. Transaction File 생성
+- 1~20사이의 정수를 만드는 난수 발생기 사용 60개 레코드
+- 생성되는 시각을 Time Stamp로 작성
+- I, U, D (Update Code) 도 각 레코드에 랜덤하게 적용
+3. Transaction File 정렬
+- Key 값을 이용하여 1차 정렬
+- Time Stamp를 이용하여 2차 정렬
+4. 순차 갱신 알고리즘 변경
+- 같은 값의 key를 가지고 있는 경우 다음 key값을 확인하는 알고리즘 추가 
