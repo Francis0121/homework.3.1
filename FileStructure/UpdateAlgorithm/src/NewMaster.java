@@ -2,6 +2,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -21,17 +23,17 @@ import util.SheetName;
  * 
  * @since 14.03.29
  */
-public class Writer {
+public class NewMaster {
 
-	private static Logger logger = LoggerFactory.getLogger(Writer.class);
+	private static Logger logger = LoggerFactory.getLogger(NewMaster.class);
 
 	private ReadList readList;
 
-	public Writer() {
+	public NewMaster() {
 		super();
 	}
 
-	public Writer(ReadList readList) {
+	public NewMaster(ReadList readList) {
 		this.readList = readList;
 	}
 
@@ -39,11 +41,11 @@ public class Writer {
 		if (readList == null)
 			throw new RuntimeException();
 
-		try {
+		try {		
 			XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(path));
 
-			XSSFSheet sheet = workbook.createSheet(SheetName.NEW_MASTER
-					.getText());
+			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+			XSSFSheet sheet = workbook.createSheet(SheetName.NEW_MASTER.getText()+sd.format(new Date()));
 			XSSFRow row = sheet.createRow(0);
 
 			Map<Integer, String> masterLabel = readList.getMasterLabel();
@@ -69,9 +71,8 @@ public class Writer {
 	}
 
 	private void updateAlogorithm(XSSFSheet sheet) {
-		List<User> transactionUser = readList.getNotSortedTransactionUser();
-		transactionUser.sort(new User());
-		List<User> masterUser = readList.getSortedMasterUser();
+		List<User> transactionUser = readList.getTransactionUser();
+		List<User> masterUser = readList.getMasterUser();
 
 		int tPoint = 0;
 		int mPoint = 0;
@@ -90,55 +91,70 @@ public class Writer {
 				String updateCode = tUser.getUpdateCode();
 				if (mUser.getKey() == tUser.getKey()) {
 					if (updateCode.equals("I")) {
-						logger.error("Duplicate record Key");
+						logger.error("Duplicate record Key " + tUser);
 						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
 					} else if (updateCode.equals("U")) {
 						User uUser = new User(mUser.getKey(),
-								tUser.getFirstName() != null ? tUser.getFirstName() : mUser.getFirstName(),
-								tUser.getFamilyName() != null ? tUser.getFamilyName() : mUser.getFamilyName(),
-								tUser.getAge() != null ? tUser.getAge() : mUser.getAge());
+								tUser.getFirstName() != null && !tUser.getFirstName().equals("") ? tUser.getFirstName() : mUser.getFirstName(),
+								tUser.getFamilyName() != null && !tUser.getFamilyName().equals("") ? tUser.getFamilyName() : mUser.getFamilyName(),
+								tUser.getAge() != null && !tUser.getAge().equals("")? tUser.getAge() : mUser.getAge());
 
-						writeRow(sheet, uUser, row++);
-
-						if (++mPoint < masterUser.size()) {
-							mUser = masterUser.get(mPoint);
-						}
-						if (++tPoint < transactionUser.size()) {
+						tPoint += 1;
+						if (tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
+						}else if(tPoint == transactionUser.size()){
+							tUser = new User();
+						}
+						
+						if(!mUser.getKey().equals(tUser.getKey())){
+							if (++mPoint < masterUser.size()) {
+								mUser = masterUser.get(mPoint);
+							}
+							writeRow(sheet, uUser, row++);
+						}else{
+							mUser = uUser;
 						}
 					} else if (updateCode.equals("D")) {
-						if (++mPoint < masterUser.size()) {
-							mUser = masterUser.get(mPoint);
-						}
 						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
+						
+						if (++mPoint < masterUser.size()) {
+							mUser = masterUser.get(mPoint);
+						}
 					} else {
-						logger.error("Invalid update code");
+						logger.error("Invalid update code " + tUser);
 						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
 					}
 				} else {
 					if (updateCode.equals("I")) {
-						writeRow(sheet, tUser, row++);
+						User uUser = tUser;
 						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
+						
+						if(!uUser.getKey().equals(tUser.getKey())){
+							writeRow(sheet, uUser, row++);
+						}else{
+							mUser = uUser;
+							mPoint--;
+						}
 					} else if (updateCode.equals("U")) {
-						logger.error("No matching master record for trans key");
+						logger.error("No matching master record for trans key " + tUser);
 						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
 					} else if (updateCode.equals("D")) {
-						logger.error("No matching master record for trans key");
+						logger.error("No matching master record for trans key " + tUser);
 						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
 					} else {
-						logger.error("Invalid update code");
+						logger.error("Invalid update code " + tUser);
 						if (++tPoint < transactionUser.size()) {
 							tUser = transactionUser.get(tPoint);
 						}
@@ -156,25 +172,28 @@ public class Writer {
 					tUser = transactionUser.get(tPoint);
 				}
 			} else if (updateCode.equals("U")) {
-				logger.error("No matching master record for trans key");
+				logger.error("No matching master record for trans key " + tUser);
 				if (++tPoint < transactionUser.size()) {
 					tUser = transactionUser.get(tPoint);
 				}
 			} else if (updateCode.equals("D")) {
-				logger.error("No matching master record for trans key");
+				logger.error("No matching master record for trans key " + tUser);
 				if (++tPoint < transactionUser.size()) {
 					tUser = transactionUser.get(tPoint);
 				}
 			} else {
-				logger.error("Invalid update code");
+				logger.error("Invalid update code " + tUser);
 				if (++tPoint < transactionUser.size()) {
 					tUser = transactionUser.get(tPoint);
 				}
 			}
 		}
-
+		
+		if(mPoint++ < masterUser.size()){
+			writeRow(sheet, mUser, row++);
+		}
 		for (int i = mPoint; i < masterUser.size(); i++) {
-			tUser = masterUser.get(i);
+			mUser = masterUser.get(i);
 			writeRow(sheet, mUser, row++);
 		}
 	}
@@ -205,4 +224,5 @@ public class Writer {
 			}
 		}
 	}
+	
 }

@@ -36,7 +36,7 @@ public class Reader {
 	 * @param path
 	 *            Absolut Path
 	 */
-	public ReadList readExcel(String path) {
+	public ReadList readExcel(String path, String transitionFileName) {
 
 		List<User> notSortedTransactionUser = new ArrayList<User>();
 		List<User> sortedMasterUser = new ArrayList<User>();
@@ -56,7 +56,7 @@ public class Reader {
 				if (sheetName == null || sheetName.equals(""))
 					continue;
 
-				if (sheetName.equals(SheetName.TRANSACTION.getText())) {
+				if (sheetName.equals(transitionFileName)) {
 					readRow(sheetNum, workbook, transactionLabel,
 							notSortedTransactionUser);
 				} else if (sheetName.equals(SheetName.OLD_MASTER.getText())) {
@@ -102,6 +102,7 @@ public class Reader {
 		String firstName = null;
 		String familyName = null;
 		String updateCode = null;
+		String timeStamp = null;
 
 		int cellSize = labelMap.size();
 		for (int cellNum = 0; cellNum < cellSize; cellNum++) {
@@ -114,39 +115,57 @@ public class Reader {
 			if (label.equals("KEY")) {
 				if (cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 					key = (int) cell.getNumericCellValue();
+				} else if (cell.getCellType() == XSSFCell.CELL_TYPE_BLANK) {
+					logger.info("Row : " + rowNum + " Cell : "+cellNum + " is Blank");
 				} else {
-					logger.error("Type 불일치");
+					logger.error("Type 불일치 KEY");
 				}
 			} else if (label.equals("AGE")) {
 				if (cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 					age = (int) cell.getNumericCellValue();
+				} else if (cell.getCellType() == XSSFCell.CELL_TYPE_BLANK) {
+					logger.info("Row : " + rowNum + "Cell :"+cellNum + "Blank");
 				} else {
-					logger.error("Type 불일치");
+					logger.error("Type 불일치 KEY");
 				}
 			} else if (label.equals("FIRST_NAME")) {
 				if (cell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					firstName = cell.getStringCellValue();
+				} else if (cell.getCellType() == XSSFCell.CELL_TYPE_BLANK) {
+					logger.info("Row : " + rowNum + "Cell :"+cellNum + "Blank");
 				} else {
-					logger.error("Type 불일치");
+					logger.error("Type 불일치 KEY");
 				}
 			} else if (label.equals("FAMILY_NAME")) {
 				if (cell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					familyName = cell.getStringCellValue();
+				} else if (cell.getCellType() == XSSFCell.CELL_TYPE_BLANK) {
+					logger.info("Row : " + rowNum + "Cell :"+cellNum + "Blank");
 				} else {
-					logger.error("Type 불일치");
+					logger.error("Type 불일치 KEY");
 				}
 			} else if (label.equals("UPDATE_CODE")) {
 				if (cell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					updateCode = cell.getStringCellValue();
+				} else if (cell.getCellType() == XSSFCell.CELL_TYPE_BLANK) {
+					logger.info("Row : " + rowNum + "Cell :"+cellNum + "Blank");
 				} else {
-					logger.error("Type 불일치");
+					logger.error("Type 불일치 KEY");
+				}
+			} else if (label.equals("TIME_STAMP")) {
+				if (cell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
+					timeStamp = cell.getStringCellValue();
+				} else if (cell.getCellType() == XSSFCell.CELL_TYPE_BLANK) {
+					logger.info("Row : " + rowNum + "Cell :"+cellNum + "Blank");
+				} else {
+					logger.error("Type 불일치 KEY");
 				}
 			} else {
 				throw new NotExistTypeException();
 			}
 
 		}
-		return new User(updateCode, key, firstName, familyName, age);
+		return new User(updateCode, key, firstName, familyName, age, timeStamp);
 	}
 
 	private void readCellMap(int rowNum, XSSFSheet sheet,

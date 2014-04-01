@@ -11,7 +11,8 @@ package util;
  */
 public enum SheetName {
 	
-	TRANSACTION("Transaction"), 
+	TRANSACTION("Transaction"),
+	SORTED_TRANSACTION("Sorted_Tran"),
 	OLD_MASTER("OldMaster"), 
 	NEW_MASTER("NewMaster");
 

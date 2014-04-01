@@ -1,5 +1,4 @@
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
 
 /**
  * Update Alogrithm
@@ -15,14 +14,20 @@ public class Main {
 	public static String ABSOLUTE_PATH = "C:\\Users\\Francis\\git\\school3-1\\FileStructure\\UpdateAlgorithm\\UpdateAlogrithm.xlsx";
 
 	public static void main(String[] args) {
-		Logger logger = LoggerFactory.getLogger(Main.class);
 
-		Reader reader = new Reader();
-		ReadList readList = reader.readExcel(ABSOLUTE_PATH);
-		logger.info(readList.toString());
+		Transition transition = new Transition();
+		String fileName = transition.writeTransitionExcel(ABSOLUTE_PATH);
 		
-		Writer writer = new Writer(readList);
-		writer.writeExcle(ABSOLUTE_PATH);
+		Reader reader = new Reader();
+		ReadList readList = reader.readExcel(ABSOLUTE_PATH, fileName);
+		List<User> sortedTransactionUser = readList.getTransactionUser();
+		sortedTransactionUser.sort(new User());
+		readList.setTransactionUser(sortedTransactionUser);
+		transition.writeSortedTransitionExcel(ABSOLUTE_PATH,
+				sortedTransactionUser);
+
+		NewMaster newMaster = new NewMaster(readList);
+		newMaster.writeExcle(ABSOLUTE_PATH);
 	}
 
 }
