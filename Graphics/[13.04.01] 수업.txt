@@ -155,7 +155,7 @@ Vertex Buffer Object(VBOS)
 (한번 받은 GPU를 더 처리하지 않는다.)
 (추후 다시 할건데
 
-Only 1 -time at initialization Rendring
+Only 1 -time at initialization Rendringv 
 
 -------------------------------------------------
 Block 기반으로 하는 방법 ( Embedde 에서는 이것만 지원함 )
