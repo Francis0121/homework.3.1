@@ -70,7 +70,7 @@ void init()
 {
 	// Clear
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
-	glEnable(GL_DEPTH_TEST); 
+	glEnable(GL_DEPTH_TEST); // 가까이 있는 것을 표현하려고 하는것이다
 	// Intrinsic
 	glMatrixMode(GL_PROJECTION); 
 	glLoadIdentity(); 
