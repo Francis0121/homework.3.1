@@ -12,6 +12,7 @@ Master File - Key Sorted
 [Extend Master File]
 Transaction File - Not sorted 
   UPDATE_CODE(String, NOT NULL)
+  TIME_STAMP(String, NOT NULL)
 ```
 
 <h4>version 0.1 [14.03.29] 알고리즘 구현 완료</h4>
