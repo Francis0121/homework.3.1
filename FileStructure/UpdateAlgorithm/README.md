@@ -102,7 +102,7 @@ for( i = mPos ; i < master.size ; i++ ) // master.position
   - 같은 값의 key를 가지고 있는 경우 다음 key값을 확인하는 알고리즘 추가 
   
 
-case 1. transaction > master Insert
+case 1. transaction < master Insert
 ```java
 if(!uUser.getKey().equals(tUser.getKey())){
   writeRow(sheet, uUser, row++);
