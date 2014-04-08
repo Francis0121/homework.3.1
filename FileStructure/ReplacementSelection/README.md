@@ -23,6 +23,12 @@ Log
 4. unfrozen List가 0이 될 때까지 2,3을 반복수행한다.
 5. unfrozne List가 0이 되면 Run이 하나 생성이 완료된것이고, fronze List를 unfroze List로 넣어 다시 알고리즘을 수행한다.
 
+- 만든이유
+Internal sorting(내부 정렬)에서 만들어지는 Run의 개수가 굉장히 많아서 정렬되 있다고 할지라도 합병시 너무 많은 비용이 든다. 
+
+- 단점 
+점점 Frozen List가 커져감으로 안쓰는 메모리가 많아진다. 
+
 ```
 109 49 34 68 45 2 60 38 28 47 16
 ```
