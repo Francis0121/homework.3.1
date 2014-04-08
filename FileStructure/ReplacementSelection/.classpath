@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Francis/.m2/repository/log4j/log4j/1.2.15/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Francis/.m2/repository/org/slf4j/slf4j-api/1.7.5/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Francis/.m2/repository/org/slf4j/slf4j-log4j12/1.6.6/slf4j-log4j12-1.6.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Francis/.m2/repository/org/apache/poi/poi/3.9/poi-3.9.jar" sourcepath="C:/Users/Francis/.m2/repository/org/apache/poi/poi-ooxml-schemas/3.9/poi-ooxml-schemas-3.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Francis/.m2/repository/org/apache/poi/poi-ooxml-schemas/3.9/poi-ooxml-schemas-3.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Francis/.m2/repository/org/apache/poi/poi-ooxml/3.9/poi-ooxml-3.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Francis/.m2/repository/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Francis/.m2/repository/org/apache/xmlbeans/xmlbeans/2.3.0/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
