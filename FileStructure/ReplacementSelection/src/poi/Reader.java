@@ -41,13 +41,11 @@ public class Reader {
 				keyList.add(key);
 			}
 
-			logger.debug("Size " +keyList.size());
+			logger.debug("Size " + keyList.size());
 			logger.debug(keyList.toString());
 		} catch (FileNotFoundException e) {
-			logger.error("FileNotFoundException");
 			e.printStackTrace();
 		} catch (IOException e) {
-			logger.error("IOException");
 			e.printStackTrace();
 		}
 
