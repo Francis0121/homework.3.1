@@ -2,111 +2,321 @@
 #include <gl/freeglut.h>
 #include <iostream>
 
-void mydisplay();
+void layer1();
+void layer2();
+void layer3();
+void layer4();
 void init();
-
-float vertices[] = {
-	// front
-	1, 1, 1, -1, 1, 1, -1,-1, 1,
-	-1,-1, 1, 1,-1, 1, 1, 1, 1,
-	// back
-	1,-1,-1, -1,-1,-1, -1, 1,-1,
-	-1, 1,-1, 1, 1,-1, 1,-1,-1,
-	// top
-	1, 1, 1, 1, 1,-1, -1, 1,-1,
-	-1, 1,-1, -1, 1, 1, 1, 1, 1,
-	// bottom
-	-1,-1,-1, 1,-1,-1, 1,-1, 1,
-	1,-1, 1, -1,-1, 1, -1,-1,-1,
-	// right
-	1, 1, 1, 1,-1, 1, 1,-1,-1,
-	1,-1,-1, 1, 1,-1, 1, 1, 1,
-	// left
-	-1, 1, 1, -1, 1,-1, -1,-1,-1,
-	-1,-1,-1, -1,-1, 1, -1, 1, 1,
-};
-
-float colors[] = {
-	// front, red
-	1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1,
-	1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1,
-	// back, cyan
-	0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1,
-	0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1,
-	// left, green
-	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-	// right, magenta
-	1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1,
-	1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1,
-	// top, blue
-	0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1,
-	0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1,
-	// bottom, yellow
-	1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
-	1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
-};
+void InitGeometry();
+void InitVBO();
+void display();
 
 int main(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
-	glutInitWindowSize(400, 400);
+	glutInitWindowSize(300, 400);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH);
-	glutCreateWindow("simple");
+	glutCreateWindow("Frame");
 	
 	if( glewInit() != GLEW_OK ) {
 		std::cout << "GLEW faild to init. :-(" << std::endl;
 	}
 	
 	init();
-	glutDisplayFunc(mydisplay);
+
+	InitGeometry();
+	InitVBO();
+	glutDisplayFunc(display);
+
 	glutMainLoop();
 	return 0;
 }
 
 void init(){
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+	// Clear buffers to preset value
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
-	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// ~ Intrinsic
 	glMatrixMode(GL_PROJECTION); 
 	glLoadIdentity(); 
-	glOrtho(-5.0f, 5.0f, -5.0f, 5.0f, -5.0f, 5.0f);
+	gluPerspective(90.0, 3.0/4.0, 0.1, 100.0);
+		
 	// ~ Extrinisic
 	glMatrixMode(GL_MODELVIEW); 
 	glLoadIdentity(); 
-	gluLookAt(	0.0f, 0.0f, 3.0f,
+	gluLookAt(	0.0f, 0.0f, 4.0f,
 				0.0f, 0.0f, 0.0f,
 				0.0f, 1.0f, 0.0f);
 }
 
 #define BUFFER_OFFSET(i) ((void*)(i))
 
-void mydisplay()
+typedef struct { 
+	float location[3]; 
+	float color[4]; 
+} Vertex; 
+	
+Vertex verts[16]; // triangle vertices 
+GLuint vboHandle[1]; // a VBO that contains interleaved positions and colors 
+GLuint indexVBO; 
+
+void InitGeometry() { 
+	float black = 64.0/255.0f;
+	// Top left
+	verts[0].location[0] = 2.8f; verts[0].location[1] = 3.8f; verts[0].location[2] = 0.0f; 
+	verts[1].location[0] = 0.1f; verts[1].location[1] = 3.8f; verts[1].location[2] = 0.0f; 
+	verts[2].location[0] = 0.1f; verts[2].location[1] = 0.1f; verts[2].location[2] = 0.0f;
+	verts[3].location[0] = 2.8f; verts[3].location[1] = 0.1f; verts[3].location[2] = 0.0f;
+	// Top right
+	verts[4].location[0] = -0.1f; verts[4].location[1] = 3.8f; verts[4].location[2] = 0.0f;
+	verts[5].location[0] = -2.8f; verts[5].location[1] = 3.8f; verts[5].location[2] = 0.0f;
+	verts[6].location[0] = -2.8f; verts[6].location[1] = 0.1f; verts[6].location[2] = 0.0f;
+	verts[7].location[0] = -0.1f; verts[7].location[1] = 0.1f; verts[7].location[2] = 0.0f;
+	// Bottom right
+	verts[8].location[0] = -0.1f; verts[8].location[1] = -0.1f; verts[8].location[2] = 0.0f; 
+	verts[9].location[0] = -2.8f; verts[9].location[1] = -0.1f; verts[9].location[2] = 0.0f; 
+	verts[10].location[0] = -2.8f; verts[10].location[1] = -3.8f; verts[10].location[2] = 0.0f; 
+	verts[11].location[0] = -0.1f; verts[11].location[1] = -3.8f; verts[11].location[2] = 0.0f; 
+	// Botoom Left
+	verts[12].location[0] = 2.8f; verts[12].location[1] = -0.1f; verts[12].location[2] = 0.0f; 
+	verts[13].location[0] = 0.1f; verts[13].location[1] = -0.1f; verts[13].location[2] = 0.0f; 
+	verts[14].location[0] = 0.1f; verts[14].location[1] = -3.8f; verts[14].location[2] = 0.0f; 
+	verts[15].location[0] = 2.8f; verts[15].location[1] = -3.8f; verts[15].location[2] = 0.0f; 
+
+	// [0] = Opacity? [1,2,3] 부터 RGB
+	verts[0].color[0] = 1; verts[0].color[1] = black; verts[0].color[2] = black; verts[0].color[3] = black; 
+	verts[1].color[0] = 1; verts[1].color[1] = black; verts[1].color[2] = black; verts[1].color[3] = black; 
+	verts[2].color[0] = 1; verts[2].color[1] = black; verts[2].color[2] = black; verts[2].color[3] = black; 
+	verts[3].color[0] = 1; verts[3].color[1] = black; verts[3].color[2] = black; verts[3].color[3] = black; 
+	verts[4].color[0] = 1; verts[4].color[1] = black; verts[4].color[2] = black; verts[4].color[3] = black; 
+	verts[5].color[0] = 1; verts[5].color[1] = black; verts[5].color[2] = black; verts[5].color[3] = black; 
+	verts[6].color[0] = 1; verts[6].color[1] = black; verts[6].color[2] = black; verts[6].color[3] = black; 
+	verts[7].color[0] = 1; verts[7].color[1] = black; verts[7].color[2] = black; verts[7].color[3] = black; 
+	verts[8].color[0] = 1; verts[8].color[1] = black; verts[8].color[2] = black; verts[8].color[3] = black; 
+	verts[9].color[0] = 1; verts[9].color[1] = black; verts[9].color[2] = black; verts[9].color[3] = black; 
+	verts[10].color[0] = 1; verts[10].color[1] = black; verts[10].color[2] = black; verts[10].color[3] = black; 
+	verts[11].color[0] = 1; verts[11].color[1] = black; verts[11].color[2] = black; verts[11].color[3] = black; 
+	verts[12].color[0] = 1; verts[12].color[1] = black; verts[12].color[2] = black; verts[12].color[3] = black; 
+	verts[13].color[0] = 1; verts[13].color[1] = black; verts[13].color[2] = black; verts[13].color[3] = black; 
+	verts[14].color[0] = 1; verts[14].color[1] = black; verts[14].color[2] = black; verts[14].color[3] = black; 
+	verts[15].color[0] = 1; verts[15].color[1] = black; verts[15].color[2] = black; verts[15].color[3] = black; 
+}
+
+void InitVBO() { 
+	GLubyte tindices[] = {	0, 5, 6, 6, 3, 0,
+							8, 9, 10, 10, 11, 8,
+							12, 13, 14, 14, 15, 12 }; // triangle vertex indices 
+
+	glGenBuffers(1, vboHandle); // create two VBO handles, one position, one color handle 
+	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); // bind the first handle 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*16, verts, GL_STATIC_DRAW); // allocate space and copy the 
+	// position data over 
+	glBindBuffer(GL_ARRAY_BUFFER, 0); // clean up 
+	glGenBuffers(1, &indexVBO); 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO); 
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*18, tindices, GL_STATIC_DRAW); // load the 
+	// index data 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0); // clean up 
+	// by now, we moved the position and color data over to the graphics card. There will be no redundant data 
+	// copy at drawing time 
+}
+
+void display() 
+{ 
+	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO); 
+	
+	glEnableClientState(GL_VERTEX_ARRAY); // enable the vertex array on the client side 
+	glEnableClientState(GL_COLOR_ARRAY); // enable the color array on the client side 
+	
+	// number of coordinates per vertex (4 here), type of the coordinates, 
+	// stride between consecutive vertices, and pointers to the first coordinate 
+	glColorPointer(4, GL_FLOAT, sizeof(Vertex), (char*) NULL+ 16); 
+	glVertexPointer(3,GL_FLOAT, sizeof(Vertex), (char*) NULL+ 0); 
+	
+	glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, (char*) NULL+0); 
+	
+	glDisableClientState(GL_VERTEX_ARRAY); 
+	glDisableClientState(GL_COLOR_ARRAY); 
+	
+	glFlush(); 
+}
+
+void layer1()
 {
-	// Trianlge Mesh 임으로 연속된 3개의 점이 삼각형을 표현함.
-	float vertice_2d[] = {
-		1,1,0,		-1,1,0,		-1,-1,0,		
-		-1,-1,0,		1,-1,0,		1,1,0
+	// ~ Buffer in client space
+	// Triangle Mesh 임으로 연속된 3개의 점이 삼각형을 표현함.
+	GLfloat vertices[] = {
+		// Top
+		2.8f, 3.8f, 0.0f,	-2.8f, 3.8f, 0.0f,	-2.8f, 0.1f, 0.0f,
+		-2.8f, 0.1f, 0.0f,	2.8f, 0.1f, 0.0f,	2.8f, 3.8f, 0.0f,
+		// Bottom Left
+		-0.1f, -0.1f, 0.0f,	-2.8f, -0.1f, 0.0f,	-2.8f, -3.8f, 0.0f,
+		-2.8f, -3.8f, 0.0f, -0.1f, -3.8f, 0.0f, -0.1f, -0.1f, 0.0f,
+		// Bottom Right
+		2.8f, -0.1f, 0.0f,	0.1f, -0.1f, 0.0f,	0.1f, -3.8f, 0.0f,
+		0.1f, -3.8f, 0.0f,	2.8f, -3.8f, 0.0f,	2.8f, -0.1f, 0.0f
 	};
 	
 	// 각 점에 대한 색을 표현한다. 위 점과 대응됨.
-	float color_2d[] = {
-		1, 0, 0, 1,		0, 1, 0, 1,		0, 0, 1, 1, 
-		1, 0, 0, 1,		1, 0, 0, 1,		1, 0, 0, 1
-	};
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	float black = 64.0/255.0f;
+	float gray = 128.0/255.0f;
+	float gray2 = 191.0/255.0f;
 	
+	GLfloat colors[] = {
+		// Top
+		black, black, black, 1,		black, black, black, 1,		black, black, black, 1, 
+		black, black, black, 1,		black, black, black, 1,		black, black, black, 1,
+		// Bottom Left
+		gray, gray, gray, 1,	gray, gray, gray, 1,	gray, gray, gray, 1, 
+		gray, gray, gray, 1,	gray, gray, gray, 1,	gray, gray, gray, 1,
+		// Bottom Right
+		gray2, gray2, gray2, 1,	gray2, gray2, gray2, 1,	gray2, gray2, gray2, 1, 
+		gray2, gray2, gray2, 1,	gray2, gray2, gray2, 1,	gray2, gray2, gray2, 1,
+	};
+	
+	// VBO 사용하기 물체를 그리기 위해 ClienSide 부분 활성화
 	glEnableClientState(GL_VERTEX_ARRAY); 
 	glEnableClientState(GL_COLOR_ARRAY);
 	
 	// set our vertices 
-	glVertexPointer(3, GL_FLOAT, 0, vertice_2d); 
-	glColorPointer(4, GL_FLOAT, 0, color_2d); 
+	glVertexPointer(3, GL_FLOAT, 0, vertices); 
+	glColorPointer(4, GL_FLOAT, 0, colors); 
 	
 	// draw
-	glDrawArrays(GL_TRIANGLES, 0, 6); 
+	glDrawArrays(GL_TRIANGLES, 0, 18); 
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY); 
+
+	glFlush();
+}
+
+void layer2()
+{
+	// ~ Buffer in client space
+	// Triangle Mesh 임으로 연속된 3개의 점이 삼각형을 표현함.
+	GLfloat vertices[] = {
+		// Top
+		2.8f, 3.8f, 0.0f,	-2.8f, 3.8f, 0.0f,	-2.8f, 0.1f, 0.0f,
+		-2.8f, 0.1f, 0.0f,	2.8f, 0.1f, 0.0f,	2.8f, 3.8f, 0.0f,
+		// Bottom 
+		2.8f, -0.1f, 0.0f,	-2.8f, -0.1f, 0.0f,	-2.8f, -3.8f, 0.0f,
+		-2.8f, -3.8f, 0.0f, 2.8f, -3.8f, 0.0f, 2.8f, -0.1f, 0.0f
+	};
+	
+	// 각 점에 대한 색을 표현한다. 위 점과 대응됨.
+	float black = 64.0/255.0f;
+	float gray = 128.0/255.0f;
+	GLfloat colors[] = {
+		// Top
+		black, black, black, 1,		black, black, black, 1,		black, black, black, 1, 
+		black, black, black, 1,		black, black, black, 1,		black, black, black, 1,
+		// Bottom Left
+		gray, gray, gray, 1,	gray, gray, gray, 1,	gray, gray, gray, 1, 
+		gray, gray, gray, 1,	gray, gray, gray, 1,	gray, gray, gray, 1
+	};
+	
+	// VBO 사용하기 물체를 그리기 위해 ClienSide 부분 활성화
+	glEnableClientState(GL_VERTEX_ARRAY); 
+	glEnableClientState(GL_COLOR_ARRAY);
+	
+	// set our vertices 
+	glVertexPointer(3, GL_FLOAT, 0, vertices); 
+	glColorPointer(4, GL_FLOAT, 0, colors); 
+	
+	// draw
+	glDrawArrays(GL_TRIANGLES, 0, 12); 
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY); 
+
+	glFlush();
+}
+
+void layer3()
+{
+	// ~ Buffer in client space
+	// Triangle Mesh 임으로 연속된 3개의 점이 삼각형을 표현함.
+	GLfloat vertices[] = {
+		// Left
+		-0.1f, 3.8f, 0.0f,	-2.8f, 3.8f, 0.0f,	-2.8f, -3.8f, 0.0f,
+		-2.8f, -3.8f, 0.0f,	-0.1f, -3.8f, 0.0f,	-0.1f, 3.8f, 0.0f,
+		// Right Top 
+		2.8f, 3.8f, 0.0f,	0.1f, 3.8f, 0.0f,	0.1f, 0.1f, 0.0f,
+		0.1f, 0.1f, 0.0f,	2.8f, 0.1f, 0.0f,	2.8f, 3.8f, 0.0f,
+		// Right Bottom 
+		2.8f, -0.1f, 0.0f,	0.1f, -0.1f, 0.0f,	0.1f, -3.8f, 0.0f,
+		0.1f, -3.8f, 0.0f,	2.8f, -3.8f, 0.0f,	2.8f, -0.1f, 0.0f
+	};
+	
+	// 각 점에 대한 색을 표현한다. 위 점과 대응됨.
+	float black = 64.0/255.0f;
+	float gray = 128.0/255.0f;
+	float gray2 = 191.0/255.0f;
+
+	GLfloat colors[] = {
+		// Top
+		black, black, black, 1,		black, black, black, 1,		black, black, black, 1, 
+		black, black, black, 1,		black, black, black, 1,		black, black, black, 1,
+		// Bottom Left
+		gray, gray, gray, 1,	gray, gray, gray, 1,	gray, gray, gray, 1, 
+		gray, gray, gray, 1,	gray, gray, gray, 1,	gray, gray, gray, 1,
+		// Bottom Right
+		gray2, gray2, gray2, 1,	gray2, gray2, gray2, 1,	gray2, gray2, gray2, 1, 
+		gray2, gray2, gray2, 1,	gray2, gray2, gray2, 1,	gray2, gray2, gray2, 1
+	};
+	
+	// VBO 사용하기 물체를 그리기 위해 ClienSide 부분 활성화
+	glEnableClientState(GL_VERTEX_ARRAY); 
+	glEnableClientState(GL_COLOR_ARRAY);
+	
+	// set our vertices 
+	glVertexPointer(3, GL_FLOAT, 0, vertices); 
+	glColorPointer(4, GL_FLOAT, 0, colors); 
+	
+	// draw
+	glDrawArrays(GL_TRIANGLES, 0, 18); 
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY); 
+
+	glFlush();
+}
+
+void layer4()
+{
+	// ~ Buffer in client space
+	// Triangle Mesh 임으로 연속된 3개의 점이 삼각형을 표현함.
+	GLfloat vertices[] = {
+		// Right
+		-0.1f, 3.8f, 0.0f,	-2.8f, 3.8f, 0.0f,	-2.8f, -3.8f, 0.0f,
+		-2.8f, -3.8f, 0.0f,	-0.1f, -3.8f, 0.0f,	-0.1f, 3.8f, 0.0f,
+		// Left 
+		2.8f, 3.8f, 0.0f,	0.1f, 3.8f, 0.0f,	0.1f, -3.8f, 0.0f,
+		0.1f, -3.8f, 0.0f,	2.8f, -3.8f, 0.0f,	2.8f, 3.8f, 0.0f
+	};
+	
+	// 각 점에 대한 색을 표현한다. 위 점과 대응됨.
+	float black = 64.0/255.0f;
+	float gray = 128.0/255.0f;
+	GLfloat colors[] = {
+		// Right
+		black, black, black, 1,		black, black, black, 1,		black, black, black, 1, 
+		black, black, black, 1,		black, black, black, 1,		black, black, black, 1,
+		// Left
+		gray, gray, gray, 1,	gray, gray, gray, 1,	gray, gray, gray, 1, 
+		gray, gray, gray, 1,	gray, gray, gray, 1,	gray, gray, gray, 1
+	};
+	
+	// VBO 사용하기 물체를 그리기 위해 ClienSide 부분 활성화
+	glEnableClientState(GL_VERTEX_ARRAY); 
+	glEnableClientState(GL_COLOR_ARRAY);
+	
+	// set our vertices 
+	glVertexPointer(3, GL_FLOAT, 0, vertices); 
+	glColorPointer(4, GL_FLOAT, 0, colors); 
+	
+	// draw
+	glDrawArrays(GL_TRIANGLES, 0, 12); 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY); 
 
