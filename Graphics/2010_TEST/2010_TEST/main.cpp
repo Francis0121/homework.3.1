@@ -9,6 +9,7 @@ void DrawVBO();
 void display();
 void reshape(int w, int h);
 void mouse(int button, int state, int x, int y);
+void mousewheel(int wheel, int direction, int x, int y);
 
 typedef struct { 
 	float location[3]; 
@@ -21,12 +22,13 @@ typedef struct {
 } Index;
 
 Index indeices[4];
-Vertex verts[20]; // triangle vertices 
+Vertex verts[36]; // triangle vertices 
 GLuint vboHandle[4]; // a VBO that contains interleaved positions and colors 
 GLuint indexVBO[4]; 
 GLdouble aspect = 3.0f/4.0f;
 int frame_loop = 0;
-
+GLfloat eyex = 0.0f;
+GLfloat eyez = 4.0f; 
 
 int main(int argc, char* argv[])
 {
@@ -44,6 +46,7 @@ int main(int argc, char* argv[])
 
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
+	glutMouseWheelFunc(mousewheel);
 	glutDisplayFunc(display);
 	glutMainLoop();
 
@@ -67,7 +70,7 @@ void init(){
 }
 
 void InitGeometry() { 
-	GLfloat black = 64.0/255.0f;
+	GLfloat black = 64.0f/255.0f;
 	// Top left
 	verts[0].location[0] = 2.8f; verts[0].location[1] = 3.8f; verts[0].location[2] = 0.0f; 
 	verts[1].location[0] = 0.1f; verts[1].location[1] = 3.8f; verts[1].location[2] = 0.0f; 
@@ -89,10 +92,31 @@ void InitGeometry() {
 	verts[14].location[0] = 0.1f; verts[14].location[1] = -3.8f; verts[14].location[2] = 0.0f; 
 	verts[15].location[0] = 2.8f; verts[15].location[1] = -3.8f; verts[15].location[2] = 0.0f;
 	// Background
-	verts[16].location[0] = 3.0f; verts[16].location[1] = 4.0f; verts[16].location[2] = 0.0f;
-	verts[17].location[0] = 3.0f; verts[17].location[1] = -4.0f; verts[17].location[2] = 0.0f;
-	verts[18].location[0] = -3.0f; verts[18].location[1] = -4.0f; verts[18].location[2] = 0.0f;
-	verts[19].location[0] = -3.0f; verts[19].location[1] = 4.0f; verts[19].location[2] = 0.0f;
+	verts[16].location[0] = 3.0f; verts[16].location[1] = 4.0f; verts[16].location[2] = -1.5f;
+	verts[17].location[0] = 3.0f; verts[17].location[1] = -4.0f; verts[17].location[2] = -1.5f;
+	verts[18].location[0] = -3.0f; verts[18].location[1] = -4.0f; verts[18].location[2] = -1.5f;
+	verts[19].location[0] = -3.0f; verts[19].location[1] = 4.0f; verts[19].location[2] = -1.5f;
+
+	// Top left
+	verts[20].location[0] = 2.8f; verts[20].location[1] = 3.8f; verts[20].location[2] = -0.5f; 
+	verts[21].location[0] = 0.1f; verts[21].location[1] = 3.8f; verts[21].location[2] = -0.5f; 
+	verts[22].location[0] = 0.1f; verts[22].location[1] = 0.1f; verts[22].location[2] = -0.5f;
+	verts[23].location[0] = 2.8f; verts[23].location[1] = 0.1f; verts[23].location[2] = -0.5f;
+	// Top right
+	verts[24].location[0] = -0.1f; verts[24].location[1] = 3.8f; verts[24].location[2] = -0.5f;
+	verts[25].location[0] = -2.8f; verts[25].location[1] = 3.8f; verts[25].location[2] = -0.5f;
+	verts[26].location[0] = -2.8f; verts[26].location[1] = 0.1f; verts[26].location[2] = -0.5f;
+	verts[27].location[0] = -0.1f; verts[27].location[1] = 0.1f; verts[27].location[2] = -0.5f;
+	// Bottom right
+	verts[28].location[0] = -0.1f; verts[28].location[1] = -0.1f; verts[28].location[2] = -0.5f; 
+	verts[29].location[0] = -2.8f; verts[29].location[1] = -0.1f; verts[29].location[2] = -0.5f; 
+	verts[30].location[0] = -2.8f; verts[30].location[1] = -3.8f; verts[30].location[2] = -0.5f; 
+	verts[31].location[0] = -0.1f; verts[31].location[1] = -3.8f; verts[31].location[2] = -0.5f; 
+	// Botoom Left
+	verts[32].location[0] = 2.8f; verts[32].location[1] = -0.1f; verts[32].location[2] = -0.5f; 
+	verts[33].location[0] = 0.1f; verts[33].location[1] = -0.1f; verts[33].location[2] = -0.5f; 
+	verts[34].location[0] = 0.1f; verts[34].location[1] = -3.8f; verts[34].location[2] = -0.5f; 
+	verts[35].location[0] = 2.8f; verts[35].location[1] = -3.8f; verts[35].location[2] = -0.5f;
 
 	// RGBA
 	verts[0].color[0] = black; verts[0].color[1] = black; verts[0].color[2] = black; verts[0].color[3] = 1; 
@@ -117,9 +141,26 @@ void InitGeometry() {
 	verts[18].color[0] = 1.0f; verts[18].color[1] = 1.0f; verts[18].color[2] = 1.0f; verts[18].color[3] = 1;
 	verts[19].color[0] = 1.0f; verts[19].color[1] = 1.0f; verts[19].color[2] = 1.0f; verts[19].color[3] = 1;
 
+	verts[20].color[0] = 1; verts[20].color[1] = black; verts[20].color[2] = black; verts[20].color[3] = 1; 
+	verts[21].color[0] = 1; verts[21].color[1] = black; verts[21].color[2] = black; verts[21].color[3] = 1; 
+	verts[22].color[0] = 1; verts[22].color[1] = black; verts[22].color[2] = black; verts[22].color[3] = 1; 
+	verts[23].color[0] = 1; verts[23].color[1] = black; verts[23].color[2] = black; verts[23].color[3] = 1; 
+	verts[24].color[0] = 1; verts[24].color[1] = black; verts[24].color[2] = black; verts[24].color[3] = 1; 
+	verts[25].color[0] = 1; verts[25].color[1] = black; verts[25].color[2] = black; verts[25].color[3] = 1; 
+	verts[26].color[0] = 1; verts[26].color[1] = black; verts[26].color[2] = black; verts[26].color[3] = 1; 
+	verts[27].color[0] = 1; verts[27].color[1] = black; verts[27].color[2] = black; verts[27].color[3] = 1; 
+	verts[28].color[0] = 1; verts[28].color[1] = black; verts[28].color[2] = black; verts[28].color[3] = 1; 
+	verts[29].color[0] = 1; verts[29].color[1] = black; verts[29].color[2] = black; verts[29].color[3] = 1; 
+	verts[30].color[0] = 1; verts[30].color[1] = black; verts[30].color[2] = black; verts[30].color[3] = 1; 
+	verts[31].color[0] = 1; verts[31].color[1] = black; verts[31].color[2] = black; verts[31].color[3] = 1; 
+	verts[32].color[0] = 1; verts[32].color[1] = black; verts[32].color[2] = black; verts[32].color[3] = 1; 
+	verts[33].color[0] = 1; verts[33].color[1] = black; verts[33].color[2] = black; verts[33].color[3] = 1; 
+	verts[34].color[0] = 1; verts[34].color[1] = black; verts[34].color[2] = black; verts[34].color[3] = 1; 
+	verts[35].color[0] = 1; verts[35].color[1] = black; verts[35].color[2] = black; verts[35].color[3] = 1;
+
 	
-	indeices[0].order = new GLubyte[24];
-	indeices[0].size = 24;
+	indeices[0].order = new GLubyte[36];
+	indeices[0].size = 36;
 	
 	indeices[0].order[0] = 0; indeices[0].order[1] = 5; indeices[0].order[2] = 6;
 	indeices[0].order[3] = 6; indeices[0].order[4] = 3; indeices[0].order[5] = 0;
@@ -132,6 +173,12 @@ void InitGeometry() {
 
 	indeices[0].order[18] = 16; indeices[0].order[19] = 17; indeices[0].order[20] = 18;
 	indeices[0].order[21] = 18; indeices[0].order[22] = 19; indeices[0].order[23] = 16;
+
+	indeices[0].order[24] = 20; indeices[0].order[25] = 0; indeices[0].order[26] = 3;
+	indeices[0].order[27] = 3; indeices[0].order[28] = 23; indeices[0].order[29] = 20;
+
+	indeices[0].order[30] = 20; indeices[0].order[31] = 25; indeices[0].order[32] = 5;
+	indeices[0].order[33] = 5; indeices[0].order[34] = 0; indeices[0].order[35] = 20;
 
 	indeices[1].order = new GLubyte[18];
 	indeices[1].size = 18;
@@ -176,7 +223,7 @@ void InitGeometry() {
 void InitVBO() {
 	glGenBuffers(1, vboHandle); // create two VBO handles, one position, one color handle 
 	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); // bind the first handle 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*20, verts, GL_STATIC_DRAW); // allocate space and copy the 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*36, verts, GL_STATIC_DRAW); // allocate space and copy the 
 	// position data over 
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // clean up 
 	glGenBuffers(1, indexVBO); 
@@ -187,7 +234,6 @@ void InitVBO() {
 }
 
 void DrawVBO(){
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]); 
@@ -213,14 +259,14 @@ void display() {
 
 	glMatrixMode(GL_MODELVIEW); 
 	glLoadIdentity(); 
-	gluLookAt(	0.0f, 0.0f, 4.0f,
+	gluLookAt(	eyex, 0.0f, eyez,
 				0.0f, 0.0f, 0.0f,
 				0.0f, 1.0f, 0.0f);
 
 	for(int i=0; i<4; i++){
 		
 		glPushMatrix();
-		glTranslatef(0, 0, -i*5);
+		glTranslatef(0, 0, (GLfloat)-i*5);
 		InitVBO();
 		DrawVBO();
 		glPopMatrix();
@@ -246,4 +292,17 @@ void mouse(int button, int state, int x, int y){
 			frame_loop = 0;
 		}
 	}
+}
+
+void mousewheel(int wheel, int direction, int x, int y){
+	
+	if(direction < 0){
+		eyex = eyex == 0 ? 0 : eyex-1;
+		eyez = eyez == 4 ? 4 : eyez-1;
+	}else if(direction > 0){
+		eyex = eyex == 10 ? 10 : eyex+1;
+		eyez = eyex > 4 && eyez == 10 ? 10 : eyez+1;
+	}
+	
+	glutPostRedisplay();
 }
