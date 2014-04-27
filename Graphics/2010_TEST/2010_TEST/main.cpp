@@ -19,6 +19,12 @@ typedef struct {
 	int size;
 } Index;
 
+typedef struct { 
+	float location[3]; 
+	float color[4]; 
+} Vertex; 
+
+Vertex verts[60]; // triangle vertices 
 Index indeices[4];
 GLuint vboHandle[4]; // a VBO that contains interleaved positions and colors 
 GLuint indexVBO[4]; 
@@ -66,18 +72,12 @@ void init(){
 				0.0f, 1.0f, 0.0f);
 }
 
-typedef struct { 
-	float location[3]; 
-	float color[4]; 
-} Vertex; 
-
-Vertex verts[36]; // triangle vertices 
-
 void InitGeometry() { 
 	GLfloat black = 204.0f/255.0f;
 	GLfloat white = 255.0f/255.0f;
+	GLfloat gray = 50.0f/255.0f;
 
-	Vertex init_vertex[56] = {
+	Vertex init_vertex[60] = {
 							// Black
 							2.8f, 3.8f, 0.0f,		black, black, black, 1, // 0 Top Left 
 							0.1f, 3.8f, 0.0f,		black, black, black, 1, // 1
@@ -144,15 +144,18 @@ void InitGeometry() {
 							-2.8f, -3.8f, -0.5f,		1.0f, black, black, 1, // 50
 							-0.1f, -3.8f, -0.5f,		1.0f, black, black, 1, // 51
 
-							2.8f, -0.1f, -0.5f,		1.0f, black, black, 1, // 32 Bottom Left
-							0.1f, -0.1f, -0.5f,		1.0f, black, black, 1, // 33
-							0.1f, -3.8f,	 -0.5f,		1.0f, black, black, 1, // 34
-							2.8f, -3.8f, -0.5f,		1.0f, black, black, 1 // 35
+							2.8f, -0.1f, -0.5f,		1.0f, black, black, 1, // 52 Bottom Left
+							0.1f, -0.1f, -0.5f,		1.0f, black, black, 1, // 53
+							0.1f, -3.8f,	 -0.5f,		1.0f, black, black, 1, // 54
+							2.8f, -3.8f, -0.5f,		1.0f, black, black, 1, // 55
 
-
+							2.8f, 3.8f, 0.0f,		gray, gray, gray, 1, // 56 Line Vertex 
+							-2.8f, 3.8f, 0.0f,		gray, gray, gray, 1, // 57
+							-2.8f, -3.8f, 0.0f,		gray, gray, gray, 1, // 58
+							2.8f, -3.8f, 0.0f,		gray, gray, gray, 1 // 59
 						};
 
-	memcpy(verts, init_vertex, 36*sizeof(Vertex));
+	memcpy(verts, init_vertex, 60*sizeof(Vertex));
 
 	GLubyte order[4][36] ={	 
 							{
@@ -200,19 +203,12 @@ void InitGeometry() {
 	indeices[3].size = 18;
 
 	memcpy(indeices[3].order, order[3], 18*sizeof(GLubyte));
-
 }
 
 void InitVBO() {
-	glGenBuffers(1, vboHandle); // create two VBO handles, one position, one color handle 
-	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); // bind the first handle 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*36, verts, GL_STATIC_DRAW); // allocate space and copy the 
-	// position data over 
-	glBindBuffer(GL_ARRAY_BUFFER, 0); // clean up 
 	glGenBuffers(1, indexVBO); 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]); 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*indeices[frame_loop].size, indeices[frame_loop].order, GL_STATIC_DRAW); // load the 
-	// index data 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0); // clean up 
 }
 
@@ -233,6 +229,9 @@ void DrawVBO(){
 	
 	glDisableClientState(GL_VERTEX_ARRAY); 
 	glDisableClientState(GL_COLOR_ARRAY);
+
+	glBindBuffer(GL_ARRAY_BUFFER,0); // clean up
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0); // clean up 
 }
 
 void display() { 
@@ -245,20 +244,55 @@ void display() {
 	gluLookAt(	eyex, 0.0f, eyez,
 				0.0f, 0.0f, 0.0f,
 				0.0f, 1.0f, 0.0f);
+	
+	// ~ VBO Copy
+	glGenBuffers(1, vboHandle); // create two VBO handles, one position, one color handle 
+	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); // bind the first handle 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*60, verts, GL_STATIC_DRAW); // allocate space and copy the 
+	glBindBuffer(GL_ARRAY_BUFFER, 0); // clean up 
+	
+	Index lineIndex;
+	lineIndex.order = new GLubyte[8]; 
+	lineIndex.size = 8;
+
+	lineIndex.order[0] = 56;	lineIndex.order[1] = 57;	lineIndex.order[2] = 57;	lineIndex.order[3] = 58;	
+	lineIndex.order[4] = 58;	lineIndex.order[5] = 59;	lineIndex.order[6] = 59;	lineIndex.order[7] = 56;
 
 	for(int i=0; i<4; i++){
 		
 		glPushMatrix();
+
 		glTranslatef(0, 0, (GLfloat)-i*5);
 		InitVBO();
 		DrawVBO();
+
+		glGenBuffers(1, indexVBO); 
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]); 
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*lineIndex.size, lineIndex.order, GL_STATIC_DRAW); // load the 
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); 
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]); 
+		
+		glEnableClientState(GL_VERTEX_ARRAY); 
+		glEnableClientState(GL_COLOR_ARRAY);
+		
+		glColorPointer(4, GL_FLOAT, sizeof(Vertex), (char*) NULL+ 12); 
+		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), (char*) NULL+ 0); 
+
+		glDrawElements(GL_LINES, lineIndex.size, GL_UNSIGNED_BYTE, (char*) NULL+0);
+		glLineWidth(2.0f);
+
+		glDisableClientState(GL_VERTEX_ARRAY); 
+		glDisableClientState(GL_COLOR_ARRAY);
+
 		glPopMatrix();
 
 		frame_loop+=1;
 		if(frame_loop == 4)
 			frame_loop = 0;
 	}
-	
+
 	glFlush(); 
 }
 
