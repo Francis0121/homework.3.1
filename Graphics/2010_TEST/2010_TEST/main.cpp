@@ -1,6 +1,9 @@
 #include <gl/glew.h>
 #include <gl/freeglut.h>
 #include <iostream>
+#include <vector>
+
+using namespace std;
 
 void init();
 void InitGeometry();
@@ -11,18 +14,12 @@ void reshape(int w, int h);
 void mouse(int button, int state, int x, int y);
 void mousewheel(int wheel, int direction, int x, int y);
 
-typedef struct { 
-	float location[3]; 
-	float color[4]; 
-} Vertex; 
-
 typedef struct {
 	GLubyte *order;
 	int size;
 } Index;
 
 Index indeices[4];
-Vertex verts[36]; // triangle vertices 
 GLuint vboHandle[4]; // a VBO that contains interleaved positions and colors 
 GLuint indexVBO[4]; 
 GLdouble aspect = 3.0f/4.0f;
@@ -69,155 +66,141 @@ void init(){
 				0.0f, 1.0f, 0.0f);
 }
 
+typedef struct { 
+	float location[3]; 
+	float color[4]; 
+} Vertex; 
+
+Vertex verts[36]; // triangle vertices 
+
 void InitGeometry() { 
-	GLfloat black = 64.0f/255.0f;
-	// Top left
-	verts[0].location[0] = 2.8f; verts[0].location[1] = 3.8f; verts[0].location[2] = 0.0f; 
-	verts[1].location[0] = 0.1f; verts[1].location[1] = 3.8f; verts[1].location[2] = 0.0f; 
-	verts[2].location[0] = 0.1f; verts[2].location[1] = 0.1f; verts[2].location[2] = 0.0f;
-	verts[3].location[0] = 2.8f; verts[3].location[1] = 0.1f; verts[3].location[2] = 0.0f;
-	// Top right
-	verts[4].location[0] = -0.1f; verts[4].location[1] = 3.8f; verts[4].location[2] = 0.0f;
-	verts[5].location[0] = -2.8f; verts[5].location[1] = 3.8f; verts[5].location[2] = 0.0f;
-	verts[6].location[0] = -2.8f; verts[6].location[1] = 0.1f; verts[6].location[2] = 0.0f;
-	verts[7].location[0] = -0.1f; verts[7].location[1] = 0.1f; verts[7].location[2] = 0.0f;
-	// Bottom right
-	verts[8].location[0] = -0.1f; verts[8].location[1] = -0.1f; verts[8].location[2] = 0.0f; 
-	verts[9].location[0] = -2.8f; verts[9].location[1] = -0.1f; verts[9].location[2] = 0.0f; 
-	verts[10].location[0] = -2.8f; verts[10].location[1] = -3.8f; verts[10].location[2] = 0.0f; 
-	verts[11].location[0] = -0.1f; verts[11].location[1] = -3.8f; verts[11].location[2] = 0.0f; 
-	// Botoom Left
-	verts[12].location[0] = 2.8f; verts[12].location[1] = -0.1f; verts[12].location[2] = 0.0f; 
-	verts[13].location[0] = 0.1f; verts[13].location[1] = -0.1f; verts[13].location[2] = 0.0f; 
-	verts[14].location[0] = 0.1f; verts[14].location[1] = -3.8f; verts[14].location[2] = 0.0f; 
-	verts[15].location[0] = 2.8f; verts[15].location[1] = -3.8f; verts[15].location[2] = 0.0f;
-	// Background
-	verts[16].location[0] = 3.0f; verts[16].location[1] = 4.0f; verts[16].location[2] = -1.5f;
-	verts[17].location[0] = 3.0f; verts[17].location[1] = -4.0f; verts[17].location[2] = -1.5f;
-	verts[18].location[0] = -3.0f; verts[18].location[1] = -4.0f; verts[18].location[2] = -1.5f;
-	verts[19].location[0] = -3.0f; verts[19].location[1] = 4.0f; verts[19].location[2] = -1.5f;
+	GLfloat black = 204.0f/255.0f;
+	GLfloat white = 255.0f/255.0f;
 
-	// Top left
-	verts[20].location[0] = 2.8f; verts[20].location[1] = 3.8f; verts[20].location[2] = -0.5f; 
-	verts[21].location[0] = 0.1f; verts[21].location[1] = 3.8f; verts[21].location[2] = -0.5f; 
-	verts[22].location[0] = 0.1f; verts[22].location[1] = 0.1f; verts[22].location[2] = -0.5f;
-	verts[23].location[0] = 2.8f; verts[23].location[1] = 0.1f; verts[23].location[2] = -0.5f;
-	// Top right
-	verts[24].location[0] = -0.1f; verts[24].location[1] = 3.8f; verts[24].location[2] = -0.5f;
-	verts[25].location[0] = -2.8f; verts[25].location[1] = 3.8f; verts[25].location[2] = -0.5f;
-	verts[26].location[0] = -2.8f; verts[26].location[1] = 0.1f; verts[26].location[2] = -0.5f;
-	verts[27].location[0] = -0.1f; verts[27].location[1] = 0.1f; verts[27].location[2] = -0.5f;
-	// Bottom right
-	verts[28].location[0] = -0.1f; verts[28].location[1] = -0.1f; verts[28].location[2] = -0.5f; 
-	verts[29].location[0] = -2.8f; verts[29].location[1] = -0.1f; verts[29].location[2] = -0.5f; 
-	verts[30].location[0] = -2.8f; verts[30].location[1] = -3.8f; verts[30].location[2] = -0.5f; 
-	verts[31].location[0] = -0.1f; verts[31].location[1] = -3.8f; verts[31].location[2] = -0.5f; 
-	// Botoom Left
-	verts[32].location[0] = 2.8f; verts[32].location[1] = -0.1f; verts[32].location[2] = -0.5f; 
-	verts[33].location[0] = 0.1f; verts[33].location[1] = -0.1f; verts[33].location[2] = -0.5f; 
-	verts[34].location[0] = 0.1f; verts[34].location[1] = -3.8f; verts[34].location[2] = -0.5f; 
-	verts[35].location[0] = 2.8f; verts[35].location[1] = -3.8f; verts[35].location[2] = -0.5f;
+	Vertex init_vertex[56] = {
+							// Black
+							2.8f, 3.8f, 0.0f,		black, black, black, 1, // 0 Top Left 
+							0.1f, 3.8f, 0.0f,		black, black, black, 1, // 1
+							0.1f, 0.1f, 0.0f,		black, black, black, 1, // 2
+							2.8f, 0.1f, 0.0f,		black, black, black, 1, // 3
 
-	// RGBA
-	verts[0].color[0] = black; verts[0].color[1] = black; verts[0].color[2] = black; verts[0].color[3] = 1; 
-	verts[1].color[0] = black; verts[1].color[1] = black; verts[1].color[2] = black; verts[1].color[3] = 1; 
-	verts[2].color[0] = black; verts[2].color[1] = black; verts[2].color[2] = black; verts[2].color[3] = 1; 
-	verts[3].color[0] = black; verts[3].color[1] = black; verts[3].color[2] = black; verts[3].color[3] = 1; 
-	verts[4].color[0] = black; verts[4].color[1] = black; verts[4].color[2] = black; verts[4].color[3] = 1; 
-	verts[5].color[0] = black; verts[5].color[1] = black; verts[5].color[2] = black; verts[5].color[3] = 1; 
-	verts[6].color[0] = black; verts[6].color[1] = black; verts[6].color[2] = black; verts[6].color[3] = 1; 
-	verts[7].color[0] = black; verts[7].color[1] = black; verts[7].color[2] = black; verts[7].color[3] = 1; 
-	verts[8].color[0] = black; verts[8].color[1] = black; verts[8].color[2] = black; verts[8].color[3] = 1; 
-	verts[9].color[0] = black; verts[9].color[1] = black; verts[9].color[2] = black; verts[9].color[3] = 1; 
-	verts[10].color[0] = black; verts[10].color[1] = black; verts[10].color[2] = black; verts[10].color[3] = 1; 
-	verts[11].color[0] = black; verts[11].color[1] = black; verts[11].color[2] = black; verts[11].color[3] = 1; 
-	verts[12].color[0] = black; verts[12].color[1] = black; verts[12].color[2] = black; verts[12].color[3] = 1; 
-	verts[13].color[0] = black; verts[13].color[1] = black; verts[13].color[2] = black; verts[13].color[3] = 1; 
-	verts[14].color[0] = black; verts[14].color[1] = black; verts[14].color[2] = black; verts[14].color[3] = 1; 
-	verts[15].color[0] = black; verts[15].color[1] = black; verts[15].color[2] = black; verts[15].color[3] = 1;
+							-0.1f, 3.8f, 0.0f,		black, black, black, 1, // 4 Top Right
+							-2.8f, 3.8f, 0.0f,		black, black, black, 1, // 5
+							-2.8f, 0.1f, 0.0f,		black, black, black, 1, // 6
+							-0.1f, 0.1f, 0.0f,		black, black, black, 1, // 7
 
-	verts[16].color[0] = 1.0f; verts[16].color[1] = 1.0f; verts[16].color[2] = 1.0f; verts[16].color[3] = 1;
-	verts[17].color[0] = 1.0f; verts[17].color[1] = 1.0f; verts[17].color[2] = 1.0f; verts[17].color[3] = 1;
-	verts[18].color[0] = 1.0f; verts[18].color[1] = 1.0f; verts[18].color[2] = 1.0f; verts[18].color[3] = 1;
-	verts[19].color[0] = 1.0f; verts[19].color[1] = 1.0f; verts[19].color[2] = 1.0f; verts[19].color[3] = 1;
+							-0.1f, -0.1f, 0.0f,		black, black, black, 1, // 8 Bottom Right
+							-2.8f, -0.1f, 0.0f,		black, black, black, 1, // 9
+							-2.8f, -3.8f, 0.0f,		black, black, black, 1, // 10
+							-0.1f, -3.8f, 0.0f,		black, black, black, 1, // 11
 
-	verts[20].color[0] = 1; verts[20].color[1] = black; verts[20].color[2] = black; verts[20].color[3] = 1; 
-	verts[21].color[0] = 1; verts[21].color[1] = black; verts[21].color[2] = black; verts[21].color[3] = 1; 
-	verts[22].color[0] = 1; verts[22].color[1] = black; verts[22].color[2] = black; verts[22].color[3] = 1; 
-	verts[23].color[0] = 1; verts[23].color[1] = black; verts[23].color[2] = black; verts[23].color[3] = 1; 
-	verts[24].color[0] = 1; verts[24].color[1] = black; verts[24].color[2] = black; verts[24].color[3] = 1; 
-	verts[25].color[0] = 1; verts[25].color[1] = black; verts[25].color[2] = black; verts[25].color[3] = 1; 
-	verts[26].color[0] = 1; verts[26].color[1] = black; verts[26].color[2] = black; verts[26].color[3] = 1; 
-	verts[27].color[0] = 1; verts[27].color[1] = black; verts[27].color[2] = black; verts[27].color[3] = 1; 
-	verts[28].color[0] = 1; verts[28].color[1] = black; verts[28].color[2] = black; verts[28].color[3] = 1; 
-	verts[29].color[0] = 1; verts[29].color[1] = black; verts[29].color[2] = black; verts[29].color[3] = 1; 
-	verts[30].color[0] = 1; verts[30].color[1] = black; verts[30].color[2] = black; verts[30].color[3] = 1; 
-	verts[31].color[0] = 1; verts[31].color[1] = black; verts[31].color[2] = black; verts[31].color[3] = 1; 
-	verts[32].color[0] = 1; verts[32].color[1] = black; verts[32].color[2] = black; verts[32].color[3] = 1; 
-	verts[33].color[0] = 1; verts[33].color[1] = black; verts[33].color[2] = black; verts[33].color[3] = 1; 
-	verts[34].color[0] = 1; verts[34].color[1] = black; verts[34].color[2] = black; verts[34].color[3] = 1; 
-	verts[35].color[0] = 1; verts[35].color[1] = black; verts[35].color[2] = black; verts[35].color[3] = 1;
+							2.8f, -0.1f, 0.0f,		black, black, black, 1, // 12 Bottom Left
+							0.1f, -0.1f, 0.0f,		black, black, black, 1, // 13
+							0.1f, -3.8f, 0.0f,		black, black, black, 1, // 14
+							2.8f, -3.8f, 0.0f,		black, black, black, 1, // 15
 
+							3.0f, 4.0f, 0.0f,		black, black, black, 1, // 16 Background
+							3.0f, -4.0f, 0.0f,		black, black, black, 1, // 17
+							-3.0f, -4.0f, 0.0f,		black, black, black, 1, // 18
+							-3.0f, 4.0f,	 0.0f,		black, black, black, 1, // 19
+							// White 
+							2.8f, 3.8f, 0.0f,		white, white, white, 1, // 20 Top Left 
+							0.1f, 3.8f, 0.0f,		white, white, white, 1, // 21
+							0.1f, 0.1f, 0.0f,		white, white, white, 1, // 22
+							2.8f, 0.1f, 0.0f,		white, white, white, 1, // 23
+
+							-0.1f, 3.8f, 0.0f,		white, white, white, 1, // 24 Top Right
+							-2.8f, 3.8f, 0.0f,		white, white, white, 1, // 25
+							-2.8f, 0.1f, 0.0f,		white, white, white, 1, // 26
+							-0.1f, 0.1f, 0.0f,		white, white, white, 1, // 27
+
+							-0.1f, -0.1f, 0.0f,		white, white, white, 1, // 28 Bottom Left
+							-2.8f, -0.1f, 0.0f,		white, white, white, 1, // 29
+							-2.8f, -3.8f, 0.0f,		white, white, white, 1, // 30
+							-0.1f, -3.8f, 0.0f,		white, white, white, 1, // 31
+
+							2.8f, -0.1f, 0.0f,		white, white, white, 1, // 32 Bottom Right
+							0.1f, -0.1f, 0.0f,		white, white, white, 1, // 33
+							0.1f, -3.8f, 0.0f,		white, white, white, 1, // 34
+							2.8f, -3.8f, 0.0f,		white, white, white, 1, // 35
+
+							3.0f, 4.0f, 0.0f,		white, white, white, 1, // 36 Background
+							3.0f, -4.0f, 0.0f,		white, white, white, 1, // 37
+							-3.0f, -4.0f, 0.0f,		white, white, white, 1, // 38
+							-3.0f, 4.0f,	 0.0f,		white, white, white, 1, // 39
+
+							2.8f, 3.8f, -0.5f,		1.0f, black, black, 1, // 40 Top Left 3D 
+							0.1f, 3.8f, -0.5f,		1.0f, black, black, 1, // 41
+							0.1f, 0.1f, -0.5f,		1.0f, black, black, 1, // 42
+							2.8f, 0.1f,	-0.5f,		1.0f, black, black, 1, // 43
+
+							-0.1f, 3.8f, -0.5f,		1.0f, black, black, 1, // 44 Top Right
+							-2.8f, 3.8f, -0.5f,		1.0f, black, black, 1, // 45
+							-2.8f, 0.1f, -0.5f,		1.0f, black, black, 1, // 46
+							-0.1f, 0.1f, -0.5f,		1.0f, black, black, 1, // 47
+
+							-0.1f, -0.1f, -0.5f,		1.0f, black, black, 1, // 48 Bottom Right
+							-2.8f, -0.1f, -0.5f,		1.0f, black, black, 1, // 49
+							-2.8f, -3.8f, -0.5f,		1.0f, black, black, 1, // 50
+							-0.1f, -3.8f, -0.5f,		1.0f, black, black, 1, // 51
+
+							2.8f, -0.1f, -0.5f,		1.0f, black, black, 1, // 32 Bottom Left
+							0.1f, -0.1f, -0.5f,		1.0f, black, black, 1, // 33
+							0.1f, -3.8f,	 -0.5f,		1.0f, black, black, 1, // 34
+							2.8f, -3.8f, -0.5f,		1.0f, black, black, 1 // 35
+
+
+						};
+
+	memcpy(verts, init_vertex, 36*sizeof(Vertex));
+
+	GLubyte order[4][36] ={	 
+							{
+								0, 5, 6, 6, 3, 0, //Top
+								8, 9, 10, 10,11, 8, // Bottom Left
+								12, 13, 14, 14, 15, 12, // Bottom Right
+								23, 26, 29, 29, 32, 23, // Background
+								33, 28, 31, 31, 34, 33 // Background
+							},
+							{
+								0, 5, 6, 6, 3, 0, // Top
+								12, 9, 10, 10, 15, 12, // Bottom
+								23, 26, 29, 29, 32, 23 // Background
+							},
+							{
+								4, 5, 10, 10, 11, 4, // Left
+								0, 1, 2, 2, 3, 0, // Right Top
+								12, 13, 14, 14, 15, 12, // Right Bottom
+								21, 24, 31, 31, 34, 21, // Background
+								23, 22, 33, 33, 32, 23 // Background
+							},
+							{
+								4, 5, 10, 10, 11, 4, // Left
+								0, 1, 14, 14, 15, 0, // Right
+								21, 24, 31, 31, 34, 21 // Background
+							}
+						};	
 	
-	indeices[0].order = new GLubyte[36];
-	indeices[0].size = 36;
-	
-	indeices[0].order[0] = 0; indeices[0].order[1] = 5; indeices[0].order[2] = 6;
-	indeices[0].order[3] = 6; indeices[0].order[4] = 3; indeices[0].order[5] = 0;
+	indeices[0].order = new GLubyte[30];
+	indeices[0].size = 30;
 
-	indeices[0].order[6] = 8; indeices[0].order[7] = 9; indeices[0].order[8] = 10;
-	indeices[0].order[9] = 10; indeices[0].order[10] = 11; indeices[0].order[11] = 8;
-
-	indeices[0].order[12] = 12; indeices[0].order[13] = 13; indeices[0].order[14] = 14;
-	indeices[0].order[15] = 14; indeices[0].order[16] = 15; indeices[0].order[17] = 12;
-
-	indeices[0].order[18] = 16; indeices[0].order[19] = 17; indeices[0].order[20] = 18;
-	indeices[0].order[21] = 18; indeices[0].order[22] = 19; indeices[0].order[23] = 16;
-
-	indeices[0].order[24] = 20; indeices[0].order[25] = 0; indeices[0].order[26] = 3;
-	indeices[0].order[27] = 3; indeices[0].order[28] = 23; indeices[0].order[29] = 20;
-
-	indeices[0].order[30] = 20; indeices[0].order[31] = 25; indeices[0].order[32] = 5;
-	indeices[0].order[33] = 5; indeices[0].order[34] = 0; indeices[0].order[35] = 20;
+	memcpy(indeices[0].order, order[0], 30*sizeof(GLubyte));
 
 	indeices[1].order = new GLubyte[18];
 	indeices[1].size = 18;
 
-	indeices[1].order[0] = 0; indeices[1].order[1] = 5; indeices[1].order[2] = 6;
-	indeices[1].order[3] = 6; indeices[1].order[4] = 3; indeices[1].order[5] = 0;
+	memcpy(indeices[1].order, order[1], 18*sizeof(GLubyte));
+	
+	indeices[2].order = new GLubyte[30];
+	indeices[2].size = 30;
 
-	indeices[1].order[6] = 12; indeices[1].order[7] = 9; indeices[1].order[8] = 10;
-	indeices[1].order[9] = 10; indeices[1].order[10] = 15; indeices[1].order[11] = 12;
-
-	indeices[1].order[12] = 16; indeices[1].order[13] = 17; indeices[1].order[14] = 18;
-	indeices[1].order[15] = 18; indeices[1].order[16] = 19; indeices[1].order[17] = 16;
-
-	indeices[2].order = new GLubyte[24];
-	indeices[2].size = 24;
-
-	indeices[2].order[0] = 4; indeices[2].order[1] = 5; indeices[2].order[2] = 10;
-	indeices[2].order[3] = 10; indeices[2].order[4] = 11; indeices[2].order[5] = 4;
-
-	indeices[2].order[6] = 0; indeices[2].order[7] = 1; indeices[2].order[8] = 2;
-	indeices[2].order[9] = 2; indeices[2].order[10] = 3; indeices[2].order[11] = 0;
-
-	indeices[2].order[12] = 12; indeices[2].order[13] = 13; indeices[2].order[14] = 14;
-	indeices[2].order[15] = 14; indeices[2].order[16] = 15; indeices[2].order[17] = 12;
-
-	indeices[2].order[18] = 16; indeices[2].order[19] = 17; indeices[2].order[20] = 18;
-	indeices[2].order[21] = 18; indeices[2].order[22] = 19; indeices[2].order[23] = 16;
+	memcpy(indeices[2].order, order[2], 30*sizeof(GLubyte));
 
 	indeices[3].order = new GLubyte[18];
 	indeices[3].size = 18;
 
-	indeices[3].order[0] = 4; indeices[3].order[1] = 5; indeices[3].order[2] = 10;
-	indeices[3].order[3] = 10; indeices[3].order[4] = 11; indeices[3].order[5] = 4;
+	memcpy(indeices[3].order, order[3], 18*sizeof(GLubyte));
 
-	indeices[3].order[6] = 0; indeices[3].order[7] = 1; indeices[3].order[8] = 14;
-	indeices[3].order[9] = 14; indeices[3].order[10] = 15; indeices[3].order[11] = 0;
-
-	indeices[3].order[12] = 16; indeices[3].order[13] = 17; indeices[3].order[14] = 18;
-	indeices[3].order[15] = 18; indeices[3].order[16] = 19; indeices[3].order[17] = 16;
 }
 
 void InitVBO() {
