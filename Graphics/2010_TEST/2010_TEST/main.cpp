@@ -24,12 +24,14 @@ typedef struct {
 	float color[4]; 
 } Vertex; 
 
-Vertex verts[60]; // triangle vertices 
-Index indeices[4];
-GLuint vboHandle[4]; // a VBO that contains interleaved positions and colors 
-GLuint indexVBO[4]; 
-GLdouble aspect = 3.0f/4.0f;
+Vertex triangleVertex[56];
+Vertex lineVertex[16]; 
+Index indeices[5];
+GLuint vboHandle[2];
+GLuint indexVBO[5]; 
+
 int frame_loop = 0;
+GLdouble aspect = 3.0f/4.0f;
 GLfloat eyex = 0.0f;
 GLfloat eyez = 4.0f; 
 
@@ -46,6 +48,7 @@ int main(int argc, char* argv[])
 	
 	init();
 	InitGeometry();
+	InitVBO();
 
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
@@ -77,7 +80,7 @@ void InitGeometry() {
 	GLfloat white = 255.0f/255.0f;
 	GLfloat gray = 50.0f/255.0f;
 
-	Vertex init_vertex[60] = {
+	Vertex vertex1[56] = {
 							// Black
 							2.8f, 3.8f, 0.0f,		black, black, black, 1, // 0 Top Left 
 							0.1f, 3.8f, 0.0f,		black, black, black, 1, // 1
@@ -147,17 +150,34 @@ void InitGeometry() {
 							2.8f, -0.1f, -0.5f,		1.0f, black, black, 1, // 52 Bottom Left
 							0.1f, -0.1f, -0.5f,		1.0f, black, black, 1, // 53
 							0.1f, -3.8f,	 -0.5f,		1.0f, black, black, 1, // 54
-							2.8f, -3.8f, -0.5f,		1.0f, black, black, 1, // 55
-
-							2.8f, 3.8f, 0.0f,		gray, gray, gray, 1, // 56 Line Vertex 
-							-2.8f, 3.8f, 0.0f,		gray, gray, gray, 1, // 57
-							-2.8f, -3.8f, 0.0f,		gray, gray, gray, 1, // 58
-							2.8f, -3.8f, 0.0f,		gray, gray, gray, 1 // 59
+							2.8f, -3.8f, -0.5f,		1.0f, black, black, 1
 						};
+	memcpy(triangleVertex, vertex1, 56*sizeof(Vertex));
+	
+	Vertex vertex2[16] = {
+							2.8f, 3.8f, 0.0f,		gray, gray, gray, 1, // 0 Top Left 
+							0.1f, 3.8f, 0.0f,		gray, gray, gray, 1, // 1
+							0.1f, 0.1f, 0.0f,		gray, gray, gray, 1, // 2
+							2.8f, 0.1f, 0.0f,		gray, gray, gray, 1, // 3
 
-	memcpy(verts, init_vertex, 60*sizeof(Vertex));
+							-0.1f, 3.8f, 0.0f,		gray, gray, gray, 1, // 4 Top Right
+							-2.8f, 3.8f, 0.0f,		gray, gray, gray, 1, // 5
+							-2.8f, 0.1f, 0.0f,		gray, gray, gray, 1, // 6
+							-0.1f, 0.1f, 0.0f,		gray, gray, gray, 1, // 7
 
-	GLubyte order[4][36] ={	 
+							-0.1f, -0.1f, 0.0f,		gray, gray, gray, 1, // 8 Bottom Right
+							-2.8f, -0.1f, 0.0f,		gray, gray, gray, 1, // 9
+							-2.8f, -3.8f, 0.0f,		gray, gray, gray, 1, // 10
+							-0.1f, -3.8f, 0.0f,		gray, gray, gray, 1, // 11
+
+							2.8f, -0.1f, 0.0f,		gray, gray, gray, 1, // 12 Bottom Left
+							0.1f, -0.1f, 0.0f,		gray, gray, gray, 1, // 13
+							0.1f, -3.8f, 0.0f,		gray, gray, gray, 1, // 14
+							2.8f, -3.8f, 0.0f,		gray, gray, gray, 1 // 15
+						};
+	memcpy(lineVertex, vertex2, 16*sizeof(Vertex));
+
+	GLubyte order[5][36] ={	 
 							{
 								0, 5, 6, 6, 3, 0, //Top
 								8, 9, 10, 10,11, 8, // Bottom Left
@@ -181,47 +201,76 @@ void InitGeometry() {
 								4, 5, 10, 10, 11, 4, // Left
 								0, 1, 14, 14, 15, 0, // Right
 								21, 24, 31, 31, 34, 21 // Background
+							},
+							{
+								0, 5, 5, 10, 10, 15, 15, 0
 							}
 						};	
-	
+
 	indeices[0].order = new GLubyte[30];
 	indeices[0].size = 30;
-
 	memcpy(indeices[0].order, order[0], 30*sizeof(GLubyte));
 
 	indeices[1].order = new GLubyte[18];
 	indeices[1].size = 18;
-
 	memcpy(indeices[1].order, order[1], 18*sizeof(GLubyte));
 	
 	indeices[2].order = new GLubyte[30];
 	indeices[2].size = 30;
-
 	memcpy(indeices[2].order, order[2], 30*sizeof(GLubyte));
 
 	indeices[3].order = new GLubyte[18];
 	indeices[3].size = 18;
-
 	memcpy(indeices[3].order, order[3], 18*sizeof(GLubyte));
+
+	indeices[4].order = new GLubyte[8];
+	indeices[4].size = 8;
+	memcpy(indeices[4].order, order[4], 8*sizeof(GLubyte));
 }
 
 void InitVBO() {
-	glGenBuffers(1, indexVBO); 
+	// ~ VBO Initiate Vertex & Color
+	glGenBuffers(2, vboHandle); 
+	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*56, triangleVertex, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[1]); 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*16, lineVertex, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// ~ VBO Initiate Index
+	glGenBuffers(5, indexVBO); 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]); 
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*indeices[frame_loop].size, indeices[frame_loop].order, GL_STATIC_DRAW); // load the 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0); // clean up 
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*indeices[0].size, indeices[0].order, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[1]); 
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*indeices[1].size, indeices[1].order, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[2]); 
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*indeices[2].size, indeices[2].order, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[3]); 
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*indeices[3].size, indeices[3].order, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[4]); 
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*indeices[4].size, indeices[4].order, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void DrawVBO(){
 
+	// ~ Triangles
 	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]); 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[frame_loop]); 
 	
-	glEnableClientState(GL_VERTEX_ARRAY); // enable the vertex array on the client side 
-	glEnableClientState(GL_COLOR_ARRAY); // enable the color array on the client side 
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 	
-	// number of coordinates per vertex (4 here), type of the coordinates, 
-	// stride between consecutive vertices, and pointers to the first coordinate 
 	glColorPointer(4, GL_FLOAT, sizeof(Vertex), (char*) NULL+ 12); 
 	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), (char*) NULL+ 0); 
 	
@@ -230,8 +279,24 @@ void DrawVBO(){
 	glDisableClientState(GL_VERTEX_ARRAY); 
 	glDisableClientState(GL_COLOR_ARRAY);
 
-	glBindBuffer(GL_ARRAY_BUFFER,0); // clean up
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0); // clean up 
+	glBindBuffer(GL_ARRAY_BUFFER,0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+
+	// ~ Lines
+	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[1]); 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[4]); 
+		
+	glEnableClientState(GL_VERTEX_ARRAY); 
+	glEnableClientState(GL_COLOR_ARRAY);
+		
+	glColorPointer(4, GL_FLOAT, sizeof(Vertex), (char*) NULL+ 12); 
+	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), (char*) NULL+ 0); 
+
+	glDrawElements(GL_LINES, indeices[4].size, GL_UNSIGNED_BYTE, (char*) NULL+0);
+	glLineWidth(2.0f);
+
+	glDisableClientState(GL_VERTEX_ARRAY); 
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void display() { 
@@ -244,48 +309,12 @@ void display() {
 	gluLookAt(	eyex, 0.0f, eyez,
 				0.0f, 0.0f, 0.0f,
 				0.0f, 1.0f, 0.0f);
-	
-	// ~ VBO Copy
-	glGenBuffers(1, vboHandle); // create two VBO handles, one position, one color handle 
-	glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); // bind the first handle 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*60, verts, GL_STATIC_DRAW); // allocate space and copy the 
-	glBindBuffer(GL_ARRAY_BUFFER, 0); // clean up 
-	
-	Index lineIndex;
-	lineIndex.order = new GLubyte[8]; 
-	lineIndex.size = 8;
-
-	lineIndex.order[0] = 56;	lineIndex.order[1] = 57;	lineIndex.order[2] = 57;	lineIndex.order[3] = 58;	
-	lineIndex.order[4] = 58;	lineIndex.order[5] = 59;	lineIndex.order[6] = 59;	lineIndex.order[7] = 56;
 
 	for(int i=0; i<4; i++){
 		
 		glPushMatrix();
-
 		glTranslatef(0, 0, (GLfloat)-i*5);
-		InitVBO();
 		DrawVBO();
-
-		glGenBuffers(1, indexVBO); 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]); 
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*lineIndex.size, lineIndex.order, GL_STATIC_DRAW); // load the 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vboHandle[0]); 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]); 
-		
-		glEnableClientState(GL_VERTEX_ARRAY); 
-		glEnableClientState(GL_COLOR_ARRAY);
-		
-		glColorPointer(4, GL_FLOAT, sizeof(Vertex), (char*) NULL+ 12); 
-		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), (char*) NULL+ 0); 
-
-		glDrawElements(GL_LINES, lineIndex.size, GL_UNSIGNED_BYTE, (char*) NULL+0);
-		glLineWidth(2.0f);
-
-		glDisableClientState(GL_VERTEX_ARRAY); 
-		glDisableClientState(GL_COLOR_ARRAY);
-
 		glPopMatrix();
 
 		frame_loop+=1;
