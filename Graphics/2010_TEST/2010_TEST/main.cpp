@@ -3,6 +3,9 @@
 #include <iostream>
 #include <vector>
 
+#define TRUE 1
+#define FALSE 0
+
 using namespace std;
 
 void init();
@@ -13,6 +16,7 @@ void display();
 void reshape(int w, int h);
 void mouse(int button, int state, int x, int y);
 void mousewheel(int wheel, int direction, int x, int y);
+void dragAndDrop(int x, int y);
 
 typedef struct {
 	GLubyte *order;
@@ -33,12 +37,17 @@ GLuint indexVBO[5];
 int frame_loop = 0;
 GLdouble aspect = 3.0f/4.0f;
 GLfloat eyex = 0.0f;
-GLfloat eyez = 4.0f; 
+GLfloat eyez = 4.0f;
+
+float opacity = 1.0f;
+int mouse_flag = FALSE;
+int width = 300, height = 400;
+int moveY = 0;
 
 int main(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
-	glutInitWindowSize(300, 400);
+	glutInitWindowSize(width, height);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH);
 	glutCreateWindow("Frame");
 	
@@ -53,6 +62,7 @@ int main(int argc, char* argv[])
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
 	glutMouseWheelFunc(mousewheel);
+	glutMotionFunc(dragAndDrop);
 	glutDisplayFunc(display);
 	glutMainLoop();
 
@@ -82,98 +92,98 @@ void InitGeometry() {
 
 	Vertex vertex1[56] = {
 							// Black
-							2.8f, 3.8f, 0.0f,		black, black, black, 1, // 0 Top Left 
-							0.1f, 3.8f, 0.0f,		black, black, black, 1, // 1
-							0.1f, 0.1f, 0.0f,		black, black, black, 1, // 2
-							2.8f, 0.1f, 0.0f,		black, black, black, 1, // 3
+							2.8f, 3.8f, 0.0f,		black, black, black, opacity, // 0 Top Left 
+							0.1f, 3.8f, 0.0f,		black, black, black, opacity, // 1
+							0.1f, 0.1f, 0.0f,		black, black, black, opacity, // 2
+							2.8f, 0.1f, 0.0f,		black, black, black, opacity, // 3
 
-							-0.1f, 3.8f, 0.0f,		black, black, black, 1, // 4 Top Right
-							-2.8f, 3.8f, 0.0f,		black, black, black, 1, // 5
-							-2.8f, 0.1f, 0.0f,		black, black, black, 1, // 6
-							-0.1f, 0.1f, 0.0f,		black, black, black, 1, // 7
+							-0.1f, 3.8f, 0.0f,		black, black, black, opacity, // 4 Top Right
+							-2.8f, 3.8f, 0.0f,		black, black, black, opacity, // 5
+							-2.8f, 0.1f, 0.0f,		black, black, black, opacity, // 6
+							-0.1f, 0.1f, 0.0f,		black, black, black, opacity, // 7
 
-							-0.1f, -0.1f, 0.0f,		black, black, black, 1, // 8 Bottom Right
-							-2.8f, -0.1f, 0.0f,		black, black, black, 1, // 9
-							-2.8f, -3.8f, 0.0f,		black, black, black, 1, // 10
-							-0.1f, -3.8f, 0.0f,		black, black, black, 1, // 11
+							-0.1f, -0.1f, 0.0f,		black, black, black, opacity, // 8 Bottom Right
+							-2.8f, -0.1f, 0.0f,		black, black, black, opacity, // 9
+							-2.8f, -3.8f, 0.0f,		black, black, black, opacity, // 10
+							-0.1f, -3.8f, 0.0f,		black, black, black, opacity, // 11
 
-							2.8f, -0.1f, 0.0f,		black, black, black, 1, // 12 Bottom Left
-							0.1f, -0.1f, 0.0f,		black, black, black, 1, // 13
-							0.1f, -3.8f, 0.0f,		black, black, black, 1, // 14
-							2.8f, -3.8f, 0.0f,		black, black, black, 1, // 15
+							2.8f, -0.1f, 0.0f,		black, black, black, opacity, // 12 Bottom Left
+							0.1f, -0.1f, 0.0f,		black, black, black, opacity, // 13
+							0.1f, -3.8f, 0.0f,		black, black, black, opacity, // 14
+							2.8f, -3.8f, 0.0f,		black, black, black, opacity, // 15
 
-							3.0f, 4.0f, 0.0f,		black, black, black, 1, // 16 Background
-							3.0f, -4.0f, 0.0f,		black, black, black, 1, // 17
-							-3.0f, -4.0f, 0.0f,		black, black, black, 1, // 18
-							-3.0f, 4.0f,	 0.0f,		black, black, black, 1, // 19
+							3.0f, 4.0f, 0.0f,		black, black, black, opacity, // 16 Background
+							3.0f, -4.0f, 0.0f,		black, black, black, opacity, // 17
+							-3.0f, -4.0f, 0.0f,		black, black, black, opacity, // 18
+							-3.0f, 4.0f,	 0.0f,		black, black, black, opacity, // 19
 							// White 
-							2.8f, 3.8f, 0.0f,		white, white, white, 1, // 20 Top Left 
-							0.1f, 3.8f, 0.0f,		white, white, white, 1, // 21
-							0.1f, 0.1f, 0.0f,		white, white, white, 1, // 22
-							2.8f, 0.1f, 0.0f,		white, white, white, 1, // 23
+							2.8f, 3.8f, 0.0f,		white, white, white, opacity, // 20 Top Left 
+							0.1f, 3.8f, 0.0f,		white, white, white, opacity, // 21
+							0.1f, 0.1f, 0.0f,		white, white, white, opacity, // 22
+							2.8f, 0.1f, 0.0f,		white, white, white, opacity, // 23
 
-							-0.1f, 3.8f, 0.0f,		white, white, white, 1, // 24 Top Right
-							-2.8f, 3.8f, 0.0f,		white, white, white, 1, // 25
-							-2.8f, 0.1f, 0.0f,		white, white, white, 1, // 26
-							-0.1f, 0.1f, 0.0f,		white, white, white, 1, // 27
+							-0.1f, 3.8f, 0.0f,		white, white, white, opacity, // 24 Top Right
+							-2.8f, 3.8f, 0.0f,		white, white, white, opacity, // 25
+							-2.8f, 0.1f, 0.0f,		white, white, white, opacity, // 26
+							-0.1f, 0.1f, 0.0f,		white, white, white, opacity, // 27
 
-							-0.1f, -0.1f, 0.0f,		white, white, white, 1, // 28 Bottom Left
-							-2.8f, -0.1f, 0.0f,		white, white, white, 1, // 29
-							-2.8f, -3.8f, 0.0f,		white, white, white, 1, // 30
-							-0.1f, -3.8f, 0.0f,		white, white, white, 1, // 31
+							-0.1f, -0.1f, 0.0f,		white, white, white, opacity, // 28 Bottom Left
+							-2.8f, -0.1f, 0.0f,		white, white, white, opacity, // 29
+							-2.8f, -3.8f, 0.0f,		white, white, white, opacity, // 30
+							-0.1f, -3.8f, 0.0f,		white, white, white, opacity, // 31
 
-							2.8f, -0.1f, 0.0f,		white, white, white, 1, // 32 Bottom Right
-							0.1f, -0.1f, 0.0f,		white, white, white, 1, // 33
-							0.1f, -3.8f, 0.0f,		white, white, white, 1, // 34
-							2.8f, -3.8f, 0.0f,		white, white, white, 1, // 35
+							2.8f, -0.1f, 0.0f,		white, white, white, opacity, // 32 Bottom Right
+							0.1f, -0.1f, 0.0f,		white, white, white, opacity, // 33
+							0.1f, -3.8f, 0.0f,		white, white, white, opacity, // 34
+							2.8f, -3.8f, 0.0f,		white, white, white, opacity, // 35
 
-							3.0f, 4.0f, 0.0f,		white, white, white, 1, // 36 Background
-							3.0f, -4.0f, 0.0f,		white, white, white, 1, // 37
-							-3.0f, -4.0f, 0.0f,		white, white, white, 1, // 38
-							-3.0f, 4.0f,	 0.0f,		white, white, white, 1, // 39
+							3.0f, 4.0f, 0.0f,		white, white, white, opacity, // 36 Background
+							3.0f, -4.0f, 0.0f,		white, white, white, opacity, // 37
+							-3.0f, -4.0f, 0.0f,		white, white, white, opacity, // 38
+							-3.0f, 4.0f,	 0.0f,		white, white, white, opacity, // 39
 
-							2.8f, 3.8f, -0.5f,		1.0f, black, black, 1, // 40 Top Left 3D 
-							0.1f, 3.8f, -0.5f,		1.0f, black, black, 1, // 41
-							0.1f, 0.1f, -0.5f,		1.0f, black, black, 1, // 42
-							2.8f, 0.1f,	-0.5f,		1.0f, black, black, 1, // 43
+							2.8f, 3.8f, -0.5f,		1.0f, black, black, opacity, // 40 Top Left 3D 
+							0.1f, 3.8f, -0.5f,		1.0f, black, black, opacity, // 41
+							0.1f, 0.1f, -0.5f,		1.0f, black, black, opacity, // 42
+							2.8f, 0.1f,	-0.5f,		1.0f, black, black, opacity, // 43
 
-							-0.1f, 3.8f, -0.5f,		1.0f, black, black, 1, // 44 Top Right
-							-2.8f, 3.8f, -0.5f,		1.0f, black, black, 1, // 45
-							-2.8f, 0.1f, -0.5f,		1.0f, black, black, 1, // 46
-							-0.1f, 0.1f, -0.5f,		1.0f, black, black, 1, // 47
+							-0.1f, 3.8f, -0.5f,		1.0f, black, black, opacity, // 44 Top Right
+							-2.8f, 3.8f, -0.5f,		1.0f, black, black, opacity, // 45
+							-2.8f, 0.1f, -0.5f,		1.0f, black, black, opacity, // 46
+							-0.1f, 0.1f, -0.5f,		1.0f, black, black, opacity, // 47
 
-							-0.1f, -0.1f, -0.5f,		1.0f, black, black, 1, // 48 Bottom Right
-							-2.8f, -0.1f, -0.5f,		1.0f, black, black, 1, // 49
-							-2.8f, -3.8f, -0.5f,		1.0f, black, black, 1, // 50
-							-0.1f, -3.8f, -0.5f,		1.0f, black, black, 1, // 51
+							-0.1f, -0.1f, -0.5f,		1.0f, black, black, opacity, // 48 Bottom Right
+							-2.8f, -0.1f, -0.5f,		1.0f, black, black, opacity, // 49
+							-2.8f, -3.8f, -0.5f,		1.0f, black, black, opacity, // 50
+							-0.1f, -3.8f, -0.5f,		1.0f, black, black, opacity, // 51
 
-							2.8f, -0.1f, -0.5f,		1.0f, black, black, 1, // 52 Bottom Left
-							0.1f, -0.1f, -0.5f,		1.0f, black, black, 1, // 53
-							0.1f, -3.8f,	 -0.5f,		1.0f, black, black, 1, // 54
-							2.8f, -3.8f, -0.5f,		1.0f, black, black, 1
+							2.8f, -0.1f, -0.5f,		1.0f, black, black, opacity, // 52 Bottom Left
+							0.1f, -0.1f, -0.5f,		1.0f, black, black, opacity, // 53
+							0.1f, -3.8f,	 -0.5f,		1.0f, black, black, opacity, // 54
+							2.8f, -3.8f, -0.5f,		1.0f, black, black, opacity
 						};
 	memcpy(triangleVertex, vertex1, 56*sizeof(Vertex));
 	
 	Vertex vertex2[16] = {
-							2.8f, 3.8f, 0.0f,		gray, gray, gray, 1, // 0 Top Left 
-							0.1f, 3.8f, 0.0f,		gray, gray, gray, 1, // 1
-							0.1f, 0.1f, 0.0f,		gray, gray, gray, 1, // 2
-							2.8f, 0.1f, 0.0f,		gray, gray, gray, 1, // 3
+							2.8f, 3.8f, 0.0f,		gray, gray, gray, opacity, // 0 Top Left 
+							0.1f, 3.8f, 0.0f,		gray, gray, gray, opacity, // 1
+							0.1f, 0.1f, 0.0f,		gray, gray, gray, opacity, // 2
+							2.8f, 0.1f, 0.0f,		gray, gray, gray, opacity, // 3
 
-							-0.1f, 3.8f, 0.0f,		gray, gray, gray, 1, // 4 Top Right
-							-2.8f, 3.8f, 0.0f,		gray, gray, gray, 1, // 5
-							-2.8f, 0.1f, 0.0f,		gray, gray, gray, 1, // 6
-							-0.1f, 0.1f, 0.0f,		gray, gray, gray, 1, // 7
+							-0.1f, 3.8f, 0.0f,		gray, gray, gray, opacity, // 4 Top Right
+							-2.8f, 3.8f, 0.0f,		gray, gray, gray, opacity, // 5
+							-2.8f, 0.1f, 0.0f,		gray, gray, gray, opacity, // 6
+							-0.1f, 0.1f, 0.0f,		gray, gray, gray, opacity, // 7
 
-							-0.1f, -0.1f, 0.0f,		gray, gray, gray, 1, // 8 Bottom Right
-							-2.8f, -0.1f, 0.0f,		gray, gray, gray, 1, // 9
-							-2.8f, -3.8f, 0.0f,		gray, gray, gray, 1, // 10
-							-0.1f, -3.8f, 0.0f,		gray, gray, gray, 1, // 11
+							-0.1f, -0.1f, 0.0f,		gray, gray, gray, opacity, // 8 Bottom Right
+							-2.8f, -0.1f, 0.0f,		gray, gray, gray, opacity, // 9
+							-2.8f, -3.8f, 0.0f,		gray, gray, gray, opacity, // 10
+							-0.1f, -3.8f, 0.0f,		gray, gray, gray, opacity, // 11
 
-							2.8f, -0.1f, 0.0f,		gray, gray, gray, 1, // 12 Bottom Left
-							0.1f, -0.1f, 0.0f,		gray, gray, gray, 1, // 13
-							0.1f, -3.8f, 0.0f,		gray, gray, gray, 1, // 14
-							2.8f, -3.8f, 0.0f,		gray, gray, gray, 1 // 15
+							2.8f, -0.1f, 0.0f,		gray, gray, gray, opacity, // 12 Bottom Left
+							0.1f, -0.1f, 0.0f,		gray, gray, gray, opacity, // 13
+							0.1f, -3.8f, 0.0f,		gray, gray, gray, opacity, // 14
+							2.8f, -3.8f, 0.0f,		gray, gray, gray, opacity // 15
 						};
 	memcpy(lineVertex, vertex2, 16*sizeof(Vertex));
 
@@ -301,17 +311,19 @@ void DrawVBO(){
 
 void display() { 
 	glEnable(GL_DEPTH_TEST);
+
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glViewport(0, moveY, width, height);
 
 	glMatrixMode(GL_MODELVIEW); 
 	glLoadIdentity(); 
 	gluLookAt(	eyex, 0.0f, eyez,
 				0.0f, 0.0f, 0.0f,
 				0.0f, 1.0f, 0.0f);
-
+	
 	for(int i=0; i<4; i++){
-		
 		glPushMatrix();
 		glTranslatef(0, 0, (GLfloat)-i*5);
 		DrawVBO();
@@ -321,22 +333,28 @@ void display() {
 		if(frame_loop == 4)
 			frame_loop = 0;
 	}
-
+	
 	glFlush(); 
 }
 
 void reshape(int w, int h){
 	glViewport(0, 0, w, h);
+	width = w;
+	height = h;
 	glutPostRedisplay(); 
 }
 
 void mouse(int button, int state, int x, int y){
 	if(button == GLUT_LEFT_BUTTON && state==GLUT_DOWN){
+		mouse_flag = TRUE;
+	}else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP){
 		frame_loop+=1;
-		
 		if(frame_loop == 4){
 			frame_loop = 0;
 		}
+		mouse_flag = FALSE;
+		moveY = 0;
+		glutPostRedisplay();
 	}
 }
 
@@ -351,4 +369,11 @@ void mousewheel(int wheel, int direction, int x, int y){
 	}
 	
 	glutPostRedisplay();
+}
+
+void dragAndDrop(int x, int y){
+	if(mouse_flag && moveY < y){
+		moveY = -y;
+		glutPostRedisplay();
+	}
 }
