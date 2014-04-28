@@ -8,7 +8,6 @@
 
 using namespace std;
 
-void init();
 void InitGeometry();
 void InitVBO();
 void DrawVBO();
@@ -40,9 +39,10 @@ GLfloat eyex = 0.0f;
 GLfloat eyez = 4.0f;
 
 float opacity = 1.0f;
+float scale = 1.0f;
 int mouse_flag = FALSE;
+int intrinsic_flag = TRUE;
 int width = 300, height = 400;
-int moveY = 0;
 
 int main(int argc, char* argv[])
 {
@@ -55,7 +55,6 @@ int main(int argc, char* argv[])
 		std::cout << "GLEW faild to init. :-(" << std::endl;
 	}
 	
-	init();
 	InitGeometry();
 	InitVBO();
 
@@ -69,20 +68,6 @@ int main(int argc, char* argv[])
 	for(int i=0; i<4;i++)
 		delete indeices[i].order;
 	return 0;
-}
-
-void init(){
-	// ~ Intrinsic
-	glMatrixMode(GL_PROJECTION); 
-	glLoadIdentity(); 
-	gluPerspective(90.0, aspect, 0.1, 100.0);
-
-	// ~ Extrinisic
-	glMatrixMode(GL_MODELVIEW); 
-	glLoadIdentity(); 
-	gluLookAt(	0.0f, 0.0f, 4.0f,
-				0.0f, 0.0f, 0.0f,
-				0.0f, 1.0f, 0.0f);
 }
 
 void InitGeometry() { 
@@ -310,12 +295,22 @@ void DrawVBO(){
 }
 
 void display() { 
+
 	glEnable(GL_DEPTH_TEST);
 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glViewport(0, moveY, width, height);
+	glViewport(0, 0, width, height);
+
+	// ~ Intrinsic
+	glMatrixMode(GL_PROJECTION); 
+	glLoadIdentity(); 
+	if(intrinsic_flag){
+		glOrtho(-3, 3, -4, 4, 0.1, 100.0); 
+	}else{
+		gluPerspective(90.0, aspect, 0.1, 100.0);
+	}
 
 	glMatrixMode(GL_MODELVIEW); 
 	glLoadIdentity(); 
@@ -326,6 +321,9 @@ void display() {
 	for(int i=0; i<4; i++){
 		glPushMatrix();
 		glTranslatef(0, 0, (GLfloat)-i*5);
+		if(mouse_flag && i == 0){
+			glScalef(1, scale, 1);
+		}
 		DrawVBO();
 		glPopMatrix();
 
@@ -353,7 +351,7 @@ void mouse(int button, int state, int x, int y){
 			frame_loop = 0;
 		}
 		mouse_flag = FALSE;
-		moveY = 0;
+		scale = 1.0f;
 		glutPostRedisplay();
 	}
 }
@@ -367,13 +365,20 @@ void mousewheel(int wheel, int direction, int x, int y){
 		eyex = eyex == 10 ? 10 : eyex+1;
 		eyez = eyex > 4 && eyez == 10 ? 10 : eyez+1;
 	}
-	
+
+	intrinsic_flag = FALSE;
+	if(eyex == 0 && eyez == 4){
+		intrinsic_flag = TRUE;
+	}
+
 	glutPostRedisplay();
 }
 
 void dragAndDrop(int x, int y){
-	if(mouse_flag && moveY < y){
-		moveY = -y;
-		glutPostRedisplay();
+	if(intrinsic_flag){
+		if(mouse_flag){
+			scale *= 0.9f;
+			glutPostRedisplay();
+		}
 	}
 }
