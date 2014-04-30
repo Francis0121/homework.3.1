@@ -18,14 +18,13 @@ public class Main {
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
 
 	public static void main(String[] args) {
-		BinaraySearchTree bst = new BinaraySearchTree();
+		BinarySearchTree bst = new BinarySearchTree();
 		Traversal traversal = new Traversal();
 
 		Tree tree1 = null;
 		Tree tree2 = null;
 		System.out.println("--------------------------");
-		System.out.println("----- Start Insert ------");
-		System.out.println("--------------------------");
+		System.out.println("----- Start Insert -------");
 		for (int i = 0; i < NODE.length; i++) {
 			tree1 = bst.insertBST(tree1, new Item(NODE[i]));
 			tree2 = bst.insertBST(tree2, new Item(NODE[i]));
@@ -39,7 +38,6 @@ public class Main {
 
 		System.out.println("--------------------------");
 		System.out.println("----Start Delete Order----");
-		System.out.println("--------------------------");
 		for (int i = 0; i < NODE.length; i++) {
 			bst.deleteBST(treeWrap, new Item(NODE[i]));
 			System.out.print("Delete Order: ");
@@ -51,7 +49,7 @@ public class Main {
 
 		System.out.println("--------------------------");
 		System.out.println("---Start Delete Reverse---");
-		System.out.println("--------------------------");
+
 		for (int i = NODE.length - 1; i >= 0; i--) {
 			bst.deleteBST(treeWrap, new Item(NODE[i]));
 			System.out.print("Delete Reverse Order: ");

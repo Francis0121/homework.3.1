@@ -6,28 +6,16 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Francis
  * 
- * @version 0.1
+ * @version 0.2
  * 
  * @since 14.04.29
  */
-public class BinaraySearchTree {
+public class BinarySearchTree {
 
 	private static Logger logger = LoggerFactory
-			.getLogger(BinaraySearchTree.class);
+			.getLogger(BinarySearchTree.class);
 
 	public static final String HASH_KEY[] = { "Parent", "Me" };
-
-	public static int count = 0;
-
-	public void countTree(Tree root) {
-		if (root.getLeft() != null) {
-			countTree(root.getLeft());
-		} else if (root.getRight() != null) {
-			countTree(root.getRight());
-		} else {
-			count++;
-		}
-	}
 
 	/**
 	 * @param root
@@ -51,6 +39,63 @@ public class BinaraySearchTree {
 		} else {
 			return searchBST(p, p.getRight(), item);
 		}
+	}
+
+	/**
+	 * @param root
+	 *            입력할 Binary Search Tree의 Root Node
+	 * @param newItem
+	 *            입력할 Item
+	 * @return
+	 */
+	public Tree insertBST(Tree root, Item newItem) {
+		Tree q = null;
+		Tree p = root;
+		Integer height = 0;
+		while (p != null) {
+			if (newItem.getKey().equals(p.getItem().getKey())) {
+				logger.error("Exist key value [" + newItem.getKey() + "]");
+			}
+			q = p;
+			height += 1;
+			if (newItem.getKey().compareTo(p.getItem().getKey()) < 0) {
+				p = p.getLeft();
+			} else {
+				p = p.getRight();
+			}
+		}
+
+		newItem.setHeight(height);
+		Tree newTree = new Tree(newItem, null, null);
+
+		if (root == null) {
+			root = newTree;
+		} else if (newItem.getKey().compareTo(q.getItem().getKey()) < 0) {
+			q.setLeft(newTree);
+		} else {
+			q.setRight(newTree);
+		}
+
+		return root;
+	}
+
+	private HashMap<Integer, Boolean> map = new HashMap<>();
+
+	private void getHeight(Tree node) {
+		this.map.put(node.getItem().getHeight(), true);
+		if (node.getLeft() != null)
+			getHeight(node.getLeft());
+		if (node.getRight() != null)
+			getHeight(node.getRight());
+	}
+
+	private void setHeight(Tree node) {
+		Item item = node.getItem();
+		item.setHeight(item.getHeight() - 1);
+		if (node.getLeft() != null)
+			setHeight(node.getLeft());
+		if (node.getRight() != null)
+			setHeight(node.getRight());
 	}
 
 	/**
@@ -227,134 +272,6 @@ public class BinaraySearchTree {
 			}
 
 		}
-
-		// HashMap<String, Tree> map = searchBST(null, root, delItem);
-		// Tree p = map.get(HASH_KEY[1]); // 주어진 키를 가진 노드
-		// Tree parent = map.get(HASH_KEY[0]); // 삭제할 노드의 부모노드
-		//
-		// if (p == null) {
-		// logger.debug("No exist value [ " + delItem.getKey() + "]");
-		// return;
-		// }
-		// logger.debug("Root : " + root.getItem().toString());
-		// logger.debug("P : " + p.getItem().toString());
-		// // logger.debug("Parent : " + parent.getItem().toString());
-		//
-		// if (p.getLeft() == null && p.getRight() == null) {
-		// if (parent.getLeft() == p) {
-		// parent.setLeft(null);
-		// } else {
-		// parent.setRight(null);
-		// }
-		// logger.debug("Leaf Node Delete " + p.getItem().getKey());
-		// } else if (p.getLeft() == null || p.getRight() == null) {
-		// if (p.getLeft() != null) {
-		// if (parent.getLeft() == p) {
-		// parent.setLeft(p.getLeft());
-		// setHeight(parent.getLeft());
-		// } else {
-		// parent.setRight(p.getLeft());
-		// setHeight(parent.getRight());
-		// }
-		// } else {
-		// if (parent.getLeft() == p) {
-		// parent.setLeft(p.getRight());
-		// setHeight(parent.getLeft());
-		// } else {
-		// parent.setRight(p.getRight());
-		// setHeight(parent.getRight());
-		// }
-		// }
-		//
-		// logger.debug("Right or Left Delete " + p.getItem().getKey());
-		// } else if (p.getLeft() != null || p.getRight() != null) {
-		//
-		// getHeight(p.getLeft());
-		// Integer lHeight = this.map.size();
-		// logger.debug(this.map.toString() + " size : " + lHeight);
-		// this.map.clear();
-		//
-		// getHeight(p.getRight());
-		// Integer rHeight = this.map.size();
-		// logger.debug(this.map.toString() + " size : " + rHeight);
-		// this.map.clear();
-		//
-		// if (lHeight < rHeight) {
-		// Tree q = p.getRight();
-		// while (q.getLeft() != null) {
-		// q = q.getLeft();
-		// }
-		// Item item = p.getItem();
-		// item.setKey(q.getItem().getKey());
-		//
-		// deleteBST(p.getRight(), p.getItem());
-		// } else { // lHeight <= rHeight Left로 처리
-		// Tree q = p.getLeft();
-		// while (q.getRight() != null) {
-		// q = q.getRight();
-		// }
-		// Item item = p.getItem();
-		// item.setKey(q.getItem().getKey());
-		//
-		// deleteBST(p.getLeft(), q.getItem());
-		// }
-		// }
 	}
 
-	private HashMap<Integer, Boolean> map = new HashMap<>();
-
-	private void getHeight(Tree node) {
-		this.map.put(node.getItem().getHeight(), true);
-		if (node.getLeft() != null)
-			getHeight(node.getLeft());
-		if (node.getRight() != null)
-			getHeight(node.getRight());
-	}
-
-	private void setHeight(Tree node) {
-		Item item = node.getItem();
-		item.setHeight(item.getHeight() - 1);
-		if (node.getLeft() != null)
-			setHeight(node.getLeft());
-		if (node.getRight() != null)
-			setHeight(node.getRight());
-	}
-
-	/**
-	 * @param root
-	 *            입력할 Binary Search Tree의 Root Node
-	 * @param newItem
-	 *            입력할 Item
-	 * @return
-	 */
-	public Tree insertBST(Tree root, Item newItem) {
-		Tree q = null;
-		Tree p = root;
-		Integer height = 0;
-		while (p != null) {
-			if (newItem.getKey().equals(p.getItem().getKey())) {
-				logger.error("Exist key value [" + newItem.getKey() + "]");
-			}
-			q = p;
-			height += 1;
-			if (newItem.getKey().compareTo(p.getItem().getKey()) < 0) {
-				p = p.getLeft();
-			} else {
-				p = p.getRight();
-			}
-		}
-
-		newItem.setHeight(height);
-		Tree newTree = new Tree(newItem, null, null);
-
-		if (root == null) {
-			root = newTree;
-		} else if (newItem.getKey().compareTo(q.getItem().getKey()) < 0) {
-			q.setLeft(newTree);
-		} else {
-			q.setRight(newTree);
-		}
-
-		return root;
-	}
 }
