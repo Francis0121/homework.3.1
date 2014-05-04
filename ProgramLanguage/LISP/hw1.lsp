@@ -21,6 +21,8 @@
 
 (defun merge2 (x y)
 	(cond
+		( ( null x ) y )
+		( ( null y ) x )
 		(  
 			(  <= (car x) (car y)  )   
 			( cons (car x)  
