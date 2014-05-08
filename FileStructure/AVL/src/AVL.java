@@ -23,12 +23,12 @@ public class AVL {
 		// ~ Case 1. Null
 		if (root == null) {
 			logger.info("Root");
-			return new Tree(newKey, 0, null, null);
+			return new Tree(newKey, 1, 0, null, null);
 		}
 
 		// Step 1 : newKey 삽입 위치 조사
 		boolean found = false;
-		// increase Value = 증가값 
+		// increase Value = 증가값
 		int iValue;
 		Tree p = root, q = null,
 		// aNode, bNode 회전시킬 Node
@@ -37,14 +37,15 @@ public class AVL {
 		parent = null,
 		// newTree = y(새로 삽입되는 node)
 		newTree = null;
-		
 
+		Integer height = 1;
 		while (p != null && !found) {
 			if (p.getBf() != 0) {
 				aNode = p;
 				parent = q;
 			}
 
+			height++;
 			if (newKey.compareTo(p.getKey()) < 0) {
 				q = p;
 				p = p.getLeft();
@@ -64,7 +65,7 @@ public class AVL {
 		}
 
 		// 새로운 Tree 노드 삽입
-		newTree = new Tree(newKey, 0, null, null);
+		newTree = new Tree(newKey, height, 0, null, null);
 		if (newKey.compareTo(q.getKey()) < 0) {
 			q.setLeft(newTree);
 		} else {
@@ -127,8 +128,33 @@ public class AVL {
 		return root;
 	}
 
+	private void decreaseHeight(Tree node) {
+		if (node == null)
+			return;
+		if (node.getLeft() != null)
+			decreaseHeight(node.getLeft());
+		node.setHeight(node.getHeight() - 1);
+		if (node.getRight() != null)
+			decreaseHeight(node.getRight());
+	}
+
+	private void increaseHeight(Tree node) {
+		if (node == null)
+			return;
+		if (node.getLeft() != null)
+			increaseHeight(node.getLeft());
+		node.setHeight(node.getHeight() + 1);
+		if (node.getRight() != null)
+			increaseHeight(node.getRight());
+	}
+
 	private void doLL(Tree aNode, Tree bNode) {
 		logger.info("LL");
+		aNode.setHeight(aNode.getHeight() + 1);
+		bNode.setHeight(bNode.getHeight() - 1);
+		decreaseHeight(bNode.getLeft());
+		increaseHeight(aNode.getRight());
+
 		aNode.setLeft(bNode.getRight());
 		bNode.setRight(aNode);
 		aNode.setBf(0);
@@ -138,6 +164,13 @@ public class AVL {
 	private Tree doLR(Tree aNode, Tree bNode) {
 		logger.info("LR");
 		Tree cNode = bNode.getRight();
+
+		cNode.setHeight(cNode.getHeight() - 2);
+		aNode.setHeight(aNode.getHeight() + 1);
+		increaseHeight(aNode.getRight());
+		decreaseHeight(cNode.getLeft());
+		decreaseHeight(cNode.getRight());
+
 		bNode.setRight(cNode.getLeft());
 		aNode.setLeft(cNode.getRight());
 		cNode.setLeft(bNode);
@@ -163,6 +196,11 @@ public class AVL {
 
 	private void doRR(Tree aNode, Tree bNode) {
 		logger.info("RR");
+		aNode.setHeight(aNode.getHeight() + 1);
+		bNode.setHeight(bNode.getHeight() - 1);
+		decreaseHeight(bNode.getRight());
+		increaseHeight(aNode.getLeft());
+
 		aNode.setRight(bNode.getLeft());
 		bNode.setLeft(aNode);
 		aNode.setBf(0);
@@ -172,6 +210,13 @@ public class AVL {
 	private Tree doRL(Tree aNode, Tree bNode) {
 		logger.info("RL");
 		Tree cNode = bNode.getLeft();
+
+		cNode.setHeight(cNode.getHeight() - 2);
+		aNode.setHeight(aNode.getHeight() + 1);
+		increaseHeight(aNode.getLeft());
+		decreaseHeight(cNode.getLeft());
+		decreaseHeight(cNode.getRight());
+
 		bNode.setLeft(cNode.getRight());
 		aNode.setRight(cNode.getLeft());
 		cNode.setLeft(aNode);

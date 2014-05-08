@@ -11,6 +11,8 @@ public class Tree {
 
 	private String key;
 
+	private Integer height;
+
 	private Integer bf;
 
 	private Tree left;
@@ -24,6 +26,8 @@ public class Tree {
 	/**
 	 * @param key
 	 *            key
+	 * @param height
+	 *            높이
 	 * @param bf
 	 *            balnaced factor (균형 인수)
 	 * @param left
@@ -31,9 +35,10 @@ public class Tree {
 	 * @param right
 	 *            right child
 	 */
-	public Tree(String key, Integer bf, Tree left, Tree right) {
+	public Tree(String key, Integer height, Integer bf, Tree left, Tree right) {
 		super();
 		this.key = key;
+		this.height = height;
 		this.bf = bf;
 		this.left = left;
 		this.right = right;
@@ -41,6 +46,10 @@ public class Tree {
 
 	public Integer getBf() {
 		return bf;
+	}
+
+	public Integer getHeight() {
+		return height;
 	}
 
 	public String getKey() {
@@ -59,6 +68,10 @@ public class Tree {
 		this.bf = bf;
 	}
 
+	public void setHeight(Integer height) {
+		this.height = height;
+	}
+
 	public void setKey(String key) {
 		this.key = key;
 	}
@@ -73,7 +86,8 @@ public class Tree {
 
 	@Override
 	public String toString() {
-		return "Tree [key=" + key + ", bf=" + bf + "]";
+		return "Tree [key=" + key + ", height=" + height + ", bf=" + bf
+				+ ", left=" + left + ", right=" + right + "]";
 	}
 
 }

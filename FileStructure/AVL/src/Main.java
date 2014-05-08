@@ -17,8 +17,10 @@ public class Main {
 		Traversal traversal = new Traversal();
 
 		for (int i = 0; i < INPUT.length; i++) {
+			traversal.setHeight(0);
 			tree = avl.insertAVL(tree, INPUT[i]);
 			traversal.inOrder(tree);
+			System.out.println("Height " + traversal.getHeight());
 			System.out.println();
 		}
 
