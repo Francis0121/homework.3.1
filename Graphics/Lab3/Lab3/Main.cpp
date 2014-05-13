@@ -22,10 +22,10 @@ int main(int argc, char* argv[])
 }
 
 void init(){
-	GLfloat La[4] = { 0.1f, 0.1f, 0.1f, 1.0f }; // Ambient
-	GLfloat Ld[4] = { 1.0f, 1.0f, 0.0f, 1.0f }; // Diffuse
-	GLfloat Ls[4] = { 1.0f, 1.0f, 1.0f, 1.0f }; // Specular
-	GLfloat Lp[4] = {}; // Position
+	GLfloat La[4] = { 0.1f, 0.1f, 0.1f, 1.0f }; // Ambient (r, g, b, a)
+	GLfloat Ld[4] = { 1.0f, 1.0f, 0.0f, 1.0f }; // Diffuse (r, g, b, a)
+	GLfloat Ls[4] = { 1.0f, 1.0f, 1.0f, 1.0f }; // Specular (r, g, b, a)
+	GLfloat Lp[4] = { 0.0f, 0.0f, 1.0f, 1.0f }; // Position (x, y, z, w) homogenous Point 임으로 w =1
 
 	GLfloat ka[4] = { 0.5f, 0.5f, 0.5f, 1.0f }; // Ambient 50% 반사
 	GLfloat kd[4] = { 0.9f, 0.9f, 0.9f, 0.9f }; // Diffuse 90% 반사
@@ -36,24 +36,22 @@ void init(){
 	glEnable(GL_DEPTH_TEST);
 
 	// 광원에 대해서 Setting
-	// Light Position을 안주면 Default로 가장 앞을 바라보게한다.
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ka);
+	glLightfv(GL_LIGHT0, GL_POSITION, Ld); // Light Position을 안주면 Default로 가장 앞을 바라보게한다.
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ka); // La, Ld, Ls 를 ka, kd, ks 로 바꿈 그래도 됨
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, kd);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, ks);
 		
 	// 물질에 대해서 Setting
 	// GL_FRONT_AND_BACK 앞뒤에 해당하는 물질을 따로 지정할수도 이렇게 같이 지정할 수도 있다.
 	// glMaterialf = 값만 넣을 것 glMaterialfv 배열
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, La); 
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, La); // ka, kd, ks 를 La, Ld, Ls 로 바꿈 그래도 됨
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, Ld);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, Ls);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);// 알파 값 반짝거림의 효과 shininess 크기가 크면 클수록 퍼져 보이게 한다.
 															// 1에 가까울수록 크다. 각도 8/10 에 승수 임으로 수가 작으면 크다.\
 
-	
 	glEnable(GL_LIGHTING); // 조명 효과를 '사용함'으로 설정한다.
 	glEnable(GL_LIGHT0); // Light가 원래는 꺼져있는데 0번을 킨다.
-
 }
 
 void mydisplay(){
