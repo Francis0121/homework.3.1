@@ -1,0 +1,49 @@
+male 이다.
+fact
+prede???
+. 으로 해야된다?
+fact 규칙 ?
+선언적 언어이다.
+
+술어형식으로 작성하는것? (Predicate 형식)
+Database에 넣는 다.
+
+father(bill, jake). % bill은 jake의 아빠이다.
+father(bill, shelley). % shelley는 bill의 아빠이다
+mother(mary, jake). % mary는 jake의 엄마이다.
+mother(mary, shelley). % mary는 shelley의 엄마이다.
+
+Yes NO Question?
+male(bill) 이라고 하면 있으면 true 없으면 false
+
+What Question?
+DB에 맞는 것을 찾아준다.
+- 첫번째 찾아준것을 보여주고  ' ; ' 을 하면뜬다
+
+변수를 주면 변수 값을 Assignment 해준다.
+male(X)하면
+X = bill ; 
+X = jake.
+.
+알고싶은것만 하려고할 때
+father(X, bill).
+father(bill, X).
+와 같이 하면 X를 알 수 있다.
+
+list는 대괄 호 안에다가 원소를 나열 한다.
+[ , , , , , ] 이런식으로
+
+' _ ' anonymous 익명 변수, 이름이 없는 변수
+
+H (car) head
+T (cdr)  tail
+
+H | T  % 첫번째꺼는 Head에 나머지는 T일에
+
+L is N+1 % ' is ' 숫자를 assignment 할당할때
+
+Prolog는 모든함수에 Return Value가 존재하지 않는다.
+len([_|T], L) :- len(T, N), L is N+1. 
+이 함수도 길이를 리턴하는게아니라 L값을 할당시키는 것이다.
+len([a,b,c,d,ee,fff], X).
+
