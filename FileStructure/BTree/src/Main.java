@@ -1,6 +1,3 @@
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Homework#6 B-Tree
  * 
@@ -11,10 +8,32 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
 
-	private static Logger logger = LoggerFactory.getLogger(Main.class);
+	private static String[] inputs = { "c", "s", "d", "t", "a", "m", "p", "i",
+			"b", "w", "n", "g", "u", "r", "k", "e", "h", "o", "l", "j", "y",
+			"q", "z", "f", "x", "v" };
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+
+		Tree root = null;
+		BTree tree = new BTree(3);
+		Traversal traversal = new Traversal();
+		for (String in : inputs) {
+			root = tree.insertBTree(root, in);
+			System.out.println("[ Insert ] : " + in);
+			System.out.println("[ Height ] : " + tree.getHeight());
+			traversal.inOrder(root);
+			System.out.println();
+		}
+
+		root = null;
+		tree = new BTree(4);
+		for (String in : inputs) {
+			root = tree.insertBTree(root, in);
+			System.out.println("[ Insert ] : " + in);
+			System.out.println("[ Height ] : " + tree.getHeight());
+			traversal.inOrder(root);
+			System.out.println();
+		}
 
 	}
 
