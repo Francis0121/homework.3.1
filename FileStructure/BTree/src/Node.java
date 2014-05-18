@@ -1,5 +1,5 @@
 /**
- * Homework#5 B-Tree
+ * Homework#6 B-Tree
  * 
  * @author Francis
  * @version 0.1
@@ -28,16 +28,16 @@ public class Node implements Comparable<Node> {
 
 	@Override
 	public int compareTo(Node node) {
-		if (node == null) {
+		if (node == null)
 			return 1;
-		}
-		if (node.getKey().compareTo(key) > 0) {
+
+		if (node.getKey().compareTo(key) > 0)
 			return -1;
-		} else if (node.getKey().compareTo(key) < 0) {
+		else if (node.getKey().compareTo(key) < 0)
 			return 1;
-		} else {
+		else
 			return 0;
-		}
+
 	}
 
 	@Override

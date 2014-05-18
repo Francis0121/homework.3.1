@@ -156,8 +156,6 @@ public class BTree {
 
 					current = parentTree;
 					logger.info("More than one");
-					logger.info("Last " + last);
-					logger.info(current.toString());
 				} else {// Tree의 레벨증가
 					height ++;
 					Tree newRoot = new Tree(this.subTreeSize);

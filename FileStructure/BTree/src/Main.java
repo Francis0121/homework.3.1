@@ -17,6 +17,7 @@ public class Main {
 		Tree root = null;
 		BTree tree = new BTree(3);
 		Traversal traversal = new Traversal();
+		System.out.println("M = 3");
 		for (String in : inputs) {
 			root = tree.insertBTree(root, in);
 			System.out.println("[ Insert ] : " + in);
@@ -27,6 +28,7 @@ public class Main {
 
 		root = null;
 		tree = new BTree(4);
+		System.out.println("M = 4");
 		for (String in : inputs) {
 			root = tree.insertBTree(root, in);
 			System.out.println("[ Insert ] : " + in);
