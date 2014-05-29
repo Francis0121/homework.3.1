@@ -42,9 +42,19 @@ public class Tree {
 		}
 		return count;
 	}
+	
+	public int getNumberOfSubTree() {
+		int count = 0;
+		for (Tree tree: subTrees) {
+			if (tree != null) {
+				count++;
+			}
+		}
+		return count;
+	}
 
 	public void setNode(Node node, int index) {
-		if (this.m - 1 < index) {
+		if (this.m - 1 <= index) {
 			// TODO IndexOutOfException
 			return;
 		}
@@ -53,7 +63,7 @@ public class Tree {
 	}
 
 	public Node getNode(int index) {
-		if (this.m - 1 < index) {
+		if (this.m - 1 <= index) {
 			// TODO IndexOutOfException
 			return null;
 		}
@@ -61,7 +71,7 @@ public class Tree {
 	}
 
 	public void setSubTree(Tree tree, int index) {
-		if (this.m < index) {
+		if (this.m <= index) {
 			// TODO IndexOutOfException
 			return;
 		}
@@ -69,11 +79,24 @@ public class Tree {
 	}
 
 	public Tree getSubTree(int index) {
-		if (this.m < index) {
+		if (this.m <= index) {
 			// TODO IndexOutOfException
 			return null;
 		}
 		return this.subTrees[index];
+	}
+	
+	public void deleteKey(String key) {
+		Node[] newNodes = new Node[this.m-1];
+		int j=0;
+		for(int i=0; i< getNumberOfKeyNode(); i++){
+			Node node = nodes[i];
+			if(key.equals(node.getKey())){
+				continue;
+			}
+			newNodes[j] = node;
+		}
+		this.nodes = newNodes;
 	}
 
 	public Node[] getNodes() {
@@ -88,5 +111,7 @@ public class Tree {
 	public String toString() {
 		return Arrays.toString(nodes) + "\n\tSub{" + Arrays.toString(subTrees)+"}";
 	}
+
+	
 
 }
