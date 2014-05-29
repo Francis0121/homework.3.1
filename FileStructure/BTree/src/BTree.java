@@ -4,9 +4,6 @@ import java.util.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jndi.ldap.Ber;
-
-import sun.security.krb5.internal.crypto.crc32;
 
 /**
  * Homework#6 B-Tree
@@ -53,6 +50,7 @@ public class BTree {
 		Stack<Integer> stackIndex = new Stack<Integer>();
 		stackTree.push(root);
 
+		int nodePosition = -1;
 		cBlock: while (current != null) {
 			Integer pointIndex = 0;
 			nBlock: for (int i = 0; i < current.getM() - 1; i++) {
@@ -64,6 +62,7 @@ public class BTree {
 					// 값이 Found 되면 해당 Parent가 입력할 공간
 					logger.info("Found : Exist value : " + key);
 					found = true;
+					nodePosition = i;
 					break cBlock;
 				}
 				if (key.compareTo(node.getKey()) < 0) {
@@ -93,29 +92,30 @@ public class BTree {
 		
 		// Leaf Node가 아니면 Leaf Node로 변경해야함. 후행키
 		Tree select = stackTree.pop();
-//		Tree beforePost = select;
-//		logger.info("후행키 탐색 전" + select.toString());
-//		if(select.getNumberOfSubTree() >= 2){
-//			stackTree.push(select);
-//			current = select.getSubTree(1);
-//			if(current != null){
-//				stackTree.push(current);
-//				stackIndex.push(1);
-//			}
-//			
-//			while(current != null){
-//				p = current.getSubTree(0);
-//				if(p != null){
-//					stackTree.push(p);
-//					stackIndex.push(0);
-//				}
-//				current = p;
-//			}
-//		}
-//		select = stackTree.pop(); // 삭제될 Node
-//		beforePost.deleteKey(key);
-//		beforePost.setNode(new Node(select.getNode(0).getKey()), beforePost.getNumberOfKeyNode());
-//		logger.info("후행키 탐색 후" + select.toString());
+		Tree beforePost = select;
+		logger.info("후행키 탐색 전" + select.toString());
+		if(select.getNumberOfSubTree() >= 2){
+			stackTree.push(select);
+			logger.info("후행키 탐색 Node Position " + nodePosition);
+			current = select.getSubTree(nodePosition+1);
+			if(current != null){
+				stackTree.push(current);
+				stackIndex.push(nodePosition+1);
+			}
+			
+			while(current != null){
+				p = current.getSubTree(0);
+				if(p != null){
+					stackTree.push(p);
+					stackIndex.push(0);
+				}
+				current = p;
+			}
+			select = stackTree.pop();
+			beforePost.deleteKey(key);
+			beforePost.setNode(new Node(select.getNode(0).getKey()), beforePost.getNumberOfKeyNode());
+		}
+		logger.info("후행키 탐색 후" + select.toString());
 		
 		boolean finished = false;
 		boolean isPre = false; // 선행키
@@ -124,6 +124,13 @@ public class BTree {
 		Tree parent = null;
 		
 		do {
+			if(root == select && root.getNumberOfSubTree() == 0){
+				finished = true;
+				select.deleteKey(key);
+				logger.info("Confirm Delete # " + select);
+				logger.info("Delete Key Node");
+				break;
+			}
 			parent = stackTree.pop();//삭제될 Node의 부모노드
 			int index = stackIndex.pop();
 			logger.info("Parent " + parent);
@@ -159,8 +166,7 @@ public class BTree {
 				}
 			}
 			logger.info("isPost [" + isPost + "], isPre [" + isPre + "]");
-			if ( (root == select && root.getSubTrees().length == 0) || 
-				 (select.getNumberOfKeyNode() > (Math.round(subTreeSize / 2.0) - 1) ) ) {
+			if ( (select.getNumberOfKeyNode() > (Math.round(subTreeSize / 2.0) - 1) ) ) {
 				// Current node is root or is not too small
 				finished = true;
 				select.deleteKey(key);
@@ -169,47 +175,124 @@ public class BTree {
 			} else if (isPre) {
 				// A-sibling > minimum 재분배 가능
 				Tree pre = parent.getSubTree(index-1);
+				// Node값 변경
 				select.setNode(parent.getNode(index-1), 0);// Parent를 가져오고
 				parent.setNode(pre.getNode(pre.getNumberOfKeyNode()-1), index-1);// Parent SubTree Node를 가져오고
 				pre.deleteKey(pre.getNode(pre.getNumberOfKeyNode()-1).getKey());// SubTree에서의 값을 지우고
+				// Tree 변경전 node 존재시 뒤로 미룸
+				if(select.getSubTree(0) != null){// TODO 0 이후도 해야될것 같다고 생각됨
+					select.setSubTree(select.getSubTree(0), 1);
+				}
+				// Tree값 변경
+				select.setSubTree(pre.getSubTree(subTreeSize-1), 0); // pre의 마지막 subtree 가져오고
+				pre.setSubTree(null, subTreeSize-1);//지우고
 				finished = true;
 				logger.info("Redistribution Pre");
 			}else if(isPost){ 
 				// A-sibling > minimum 재분배 가능
 				Tree post = parent.getSubTree(index+1);
+				// Node 변경
 				select.setNode(parent.getNode(index), 0); // Parent를 가져오고
 				parent.setNode(post.getNode(0), index); // Parent SubTree Node를 가져오고
 				post.deleteKey(post.getNode(0).getKey()); // SubTree에서의 값을 지우고
+				// Tree 변경
+				select.setSubTree(post.getSubTree(0), 1); // 뒤 Tree의 가장 앞 subtree를 가져와서 select마지막에 넣는다
+				// Post Tree index 당기기
+				for(int i=0; i<post.getSubTrees().length; i++){
+					Tree copy = post.getSubTree(i+1);
+					if(copy != null){
+						post.setSubTree(copy, i);
+					}
+				}
+				post.setSubTree(null, post.getSubTrees().length-1);
 				finished = true;
 				logger.info("Redistribution Post");
 			}else {
 				// TODO Merger A-sibling
 				if(index == 0){
-					int j = 0;
-					for (int i = 0; i < parent.getNumberOfKeyNode(); i++) {
-						Node node = parent.getNode(i);
-						select.setNode(node, j++);
-					}
+					if(parent.getNumberOfKeyNode() > (Math.round(subTreeSize / 2.0) - 1)){
+						finished = true;
+						select.setNode(parent.getNode(0), 0);
+						
+						Tree post = parent.getSubTree(1);
+						int j = 1;
+						for(int i=0; i<post.getNumberOfSubTree(); i++){
+							Tree tree = post.getSubTree(i);
+							select.setSubTree(tree, j++);
+						}
+						logger.info("Index0 Step 1" + select);
+						
+						j = 1;
+						for(int i=0; i<post.getNumberOfKeyNode(); i++){
+							Node node = post.getNode(i);
+							select.setNode(node, j++);
+						}
+						logger.info("Index0 Step 2" + select);
+						
+						parent.deleteKey(parent.getNode(0).getKey());
+						parent.setSubTree(select, 0);
+						for(int i=1; i<parent.getSubTrees().length; i++){
+							Tree copy = parent.getSubTree(i+1);
+							if(copy != null){
+								parent.setSubTree(copy, i);
+							}
+						}
+						parent.setSubTree(null, parent.getSubTrees().length-1);
+						
+						
+					}else{
+						int j = 0;
+						Stack<String> stackKey = new Stack<String>();
+						for (int i = 0; i < parent.getNumberOfKeyNode(); i++) {
+							Node node = parent.getNode(i);
+							select.setNode(node, j++);
+							stackKey.push(node.getKey());
+						}
+						
+						Tree post = parent.getSubTree(index+1);
+						for (int i = 0; i < post.getNumberOfKeyNode(); i++) {
+							Node node = post.getNode(i);
+							select.setNode(node, j++);
+						}
+						parent.setSubTree(null, index+1); // Post SubTree는 합병으로 사라지고
+						select = parent; // 지워야할 노드는 Parent로 변경됨.
+						
+						while(!stackKey.isEmpty()){
+							parent.deleteKey(stackKey.pop());
+						}
+					}					
+					logger.info("Merge Temp Index == 0 "+ select.toString());
+				}else if(index == subTreeSize-1){ // 마지막 Node였던경우
+					int j =0;
 					
-					Tree post = parent.getSubTree(index+1);
-					for (int i = 0; i < post.getNumberOfKeyNode(); i++) {
-						Node node = post.getNode(i);
-						select.setNode(node, j++);
-					}
-					parent.setSubTree(null, index+1); // Post SubTree는 합병으로 사라지고
-					select = parent; // 지워야할 노드는 Parent로 변경됨.
-					logger.info("Merge Temp Index == 0"+ select.toString());
-				}else{
-					int j = 0;
-					select.setSubTree(select.getSubTree(0), 2);// 합병시 subTree가 이동됨으로먼저하고
-					
-					Tree pre = parent.getSubTree(index-1); // 왼쪽 노드부터 합병임으로 합병하고
+					Tree pre = parent.getSubTree(index-1);
+					parent.setSubTree(null, index-1);
 					for (int i = 0; i < pre.getNumberOfKeyNode(); i++) {
 						Node node = pre.getNode(i);
 						Tree tree = pre.getSubTree(i);
 						select.setNode(node, j);
 						select.setSubTree(tree, j++);
 					}
+					
+					select.setNode(parent.getNode(index-1), j);
+					parent.deleteKey(parent.getNode(index-1).getKey());
+					
+					parent.setSubTree(select, index-1);
+					parent.setSubTree(null, index);
+					finished = true;
+				}else{
+					int j = 0;
+					select.setSubTree(select.getSubTree(0), 2);// 합병시 subTree가 이동됨으로먼저하고
+					
+					Tree pre = parent.getSubTree(index-1); // 왼쪽 노드부터 합병임으로 합병하고
+					parent.setSubTree(null, index-1);// 왼쪽 노드는 삭제 됨
+					for (int i = 0; i < pre.getNumberOfKeyNode(); i++) {
+						Node node = pre.getNode(i);
+						Tree tree = pre.getSubTree(i);
+						select.setNode(node, j);
+						select.setSubTree(tree, j++);
+					}
+					logger.info("Step 1 " +select);
 					select.setSubTree(pre.getSubTree(pre.getNumberOfKeyNode()), j);
 					Stack<String> stackKey = new Stack<String>();
 					for (int i = 0; i < index; i++) {// 부모노드입력시키면
@@ -217,9 +300,11 @@ public class BTree {
 						select.setNode(node, j++);
 						stackKey.push(node.getKey());
 					}
+					logger.info("Step 2 " +select);
 					
 					// Index 변경
 					parent.setSubTree(select, 0); //index 0에 새로 만든것을 넣음
+					parent.setSubTree(null, index); // index 0 으로 변경 하면서 null로 변경
 					if(parent.getNumberOfKeyNode() > (Math.round(subTreeSize / 2.0) - 1)){
 						finished = true;
 						for(int i=index; i<parent.getSubTrees().length; i++){
@@ -235,22 +320,22 @@ public class BTree {
 					while(!stackKey.isEmpty()){
 						parent.deleteKey(stackKey.pop());
 					}
-					logger.info("Merge Temp Index != 0"+ select.toString());
+					logger.info("Merge Temp Index != 0 "+ select);
+					select = parent;
+					logger.info("Merge Changer Select " + select);
 				}
 				logger.info("Merge");
 			}
-			
-		} while (!finished);
-
+		
+		} while (!finished && !stackTree.isEmpty());
+		
+		if(root.getNumberOfKeyNode() == 0){
+			this.height--;
+			root = root.getSubTree(0);
+		}
 		logger.info("##################################");
 		logger.info("Root\n"+ root);
 		logger.info("##################################");
-		// Tree의 레벨이 하나 감소한다.
-		if (root == null) {
-			this.height--;
-			// TODO New root
-		}
-		
 		return root;
 	}
 
