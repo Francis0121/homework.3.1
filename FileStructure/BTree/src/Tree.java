@@ -94,7 +94,7 @@ public class Tree {
 			if(key.equals(node.getKey())){
 				continue;
 			}
-			newNodes[j] = node;
+			newNodes[j++] = node;
 		}
 		this.nodes = newNodes;
 	}

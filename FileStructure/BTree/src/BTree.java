@@ -114,6 +114,8 @@ public class BTree {
 			select = stackTree.pop();
 			beforePost.deleteKey(key);
 			beforePost.setNode(new Node(select.getNode(0).getKey()), beforePost.getNumberOfKeyNode());
+			Node node = select.getNode(0);
+			node.setKey(key);
 		}
 		logger.info("후행키 탐색 후" + select.toString());
 		
@@ -227,17 +229,19 @@ public class BTree {
 							Node node = post.getNode(i);
 							select.setNode(node, j++);
 						}
-						logger.info("Index0 Step 2" + select);
+						logger.info("Index0 Step 2" + select + "\n\n" + parent);
 						
 						parent.deleteKey(parent.getNode(0).getKey());
 						parent.setSubTree(select, 0);
-						for(int i=1; i<parent.getSubTrees().length; i++){
+						
+						logger.info("Index0 Step 3" + select + "\n\n" + parent);
+						for(int i=1; i<parent.getNumberOfSubTree(); i++){
 							Tree copy = parent.getSubTree(i+1);
 							if(copy != null){
 								parent.setSubTree(copy, i);
 							}
 						}
-						parent.setSubTree(null, parent.getSubTrees().length-1);
+						parent.setSubTree(null, parent.getNumberOfSubTree()-1);
 						
 						
 					}else{
@@ -295,7 +299,7 @@ public class BTree {
 					logger.info("Step 1 " +select);
 					select.setSubTree(pre.getSubTree(pre.getNumberOfKeyNode()), j);
 					Stack<String> stackKey = new Stack<String>();
-					for (int i = 0; i < index; i++) {// 부모노드입력시키면
+					for (int i = index-1; i < index; i++) {// 부모노드입력시키면 //TODO 여기
 						Node node = parent.getNode(i);
 						select.setNode(node, j++);
 						stackKey.push(node.getKey());
@@ -303,7 +307,7 @@ public class BTree {
 					logger.info("Step 2 " +select);
 					
 					// Index 변경
-					parent.setSubTree(select, 0); //index 0에 새로 만든것을 넣음
+					parent.setSubTree(select, index-1); //index 0에 새로 만든것을 넣음// TODO 여기
 					parent.setSubTree(null, index); // index 0 으로 변경 하면서 null로 변경
 					if(parent.getNumberOfKeyNode() > (Math.round(subTreeSize / 2.0) - 1)){
 						finished = true;
