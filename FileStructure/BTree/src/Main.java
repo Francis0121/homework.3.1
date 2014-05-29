@@ -1,9 +1,9 @@
 /**
- * Homework#6 B-Tree
+ * Homework#6 B-Tree(+Delete)
  * 
  * @author Francis
- * @version 0.1
- * @since 14.05.16
+ * @version 0.2
+ * @since 14.05.29
  * 
  */
 public class Main {
@@ -17,7 +17,8 @@ public class Main {
 		 "p", "h", "i", "e", "u"};
 
 	public static void main(String[] args) {
-
+		
+		int line = 1;
 		Tree root = null;
 		BTree tree = new BTree(3);
 		Traversal traversal = new Traversal();
@@ -27,6 +28,7 @@ public class Main {
 			root = tree.insertBTree(root, in);
 			System.out.println("[ Insert ] : " + in);
 			System.out.println("[ Height ] : " + tree.getHeight());
+			System.out.print(line++ + " : ");
 			traversal.inOrder(root);
 			System.out.println();
 		}
@@ -36,6 +38,7 @@ public class Main {
 			root = tree.deleteBTree(root, del);
 			System.out.println("[ Delete ] : " + del);
 			System.out.println("[ Height ] : " + tree.getHeight());
+			System.out.print(line++ + " : ");
 			traversal.inOrder(root);
 			System.out.println();
 		}
@@ -48,6 +51,7 @@ public class Main {
 			root = tree.insertBTree(root, in);
 			System.out.println("[ Insert ] : " + in);
 			System.out.println("[ Height ] : " + tree.getHeight());
+			System.out.print(line++ + " : ");
 			traversal.inOrder(root);
 			System.out.println();
 		}
@@ -57,6 +61,7 @@ public class Main {
 			root = tree.deleteBTree(root, del);
 			System.out.println("[ Delete ] : " + del);
 			System.out.println("[ Height ] : " + tree.getHeight());
+			System.out.print(line++ + " : ");
 			traversal.inOrder(root);
 			System.out.println();
 		}

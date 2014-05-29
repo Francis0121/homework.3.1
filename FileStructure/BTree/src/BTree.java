@@ -6,11 +6,11 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Homework#6 B-Tree
+ * Homework#6 B-Tree(+Delete)
  * 
  * @author Francis
- * @version 0.1
- * @since 14.05.16
+ * @version 0.2
+ * @since 14.05.29
  * 
  */
 public class BTree {
@@ -36,7 +36,7 @@ public class BTree {
 	}
 
 	public Tree deleteBTree(Tree root, String key) {
-		// TODO find key node
+		// find key node
 		// 동시에 선행키나 후행키가 사용가능한지 여부 판단
 		if (root == null) { // 삭제 할것이 없음으로 null 반환
 			return null;
@@ -122,7 +122,7 @@ public class BTree {
 		boolean finished = false;
 		boolean isPre = false; // 선행키
 		boolean isPost = false; // 후행키
-		// TODO Delete Node
+		// Delete Node
 		Tree parent = null;
 		
 		do {
@@ -182,7 +182,7 @@ public class BTree {
 				parent.setNode(pre.getNode(pre.getNumberOfKeyNode()-1), index-1);// Parent SubTree Node를 가져오고
 				pre.deleteKey(pre.getNode(pre.getNumberOfKeyNode()-1).getKey());// SubTree에서의 값을 지우고
 				// Tree 변경전 node 존재시 뒤로 미룸
-				if(select.getSubTree(0) != null){// TODO 0 이후도 해야될것 같다고 생각됨
+				if(select.getSubTree(0) != null){// 0 이후도 해야될것 같다고 생각됨
 					select.setSubTree(select.getSubTree(0), 1);
 				}
 				// Tree값 변경
@@ -210,7 +210,7 @@ public class BTree {
 				finished = true;
 				logger.info("Redistribution Post");
 			}else {
-				// TODO Merger A-sibling
+				// Merger A-sibling
 				if(index == 0){
 					if(parent.getNumberOfKeyNode() > (Math.round(subTreeSize / 2.0) - 1)){
 						finished = true;
@@ -299,7 +299,7 @@ public class BTree {
 					logger.info("Step 1 " +select);
 					select.setSubTree(pre.getSubTree(pre.getNumberOfKeyNode()), j);
 					Stack<String> stackKey = new Stack<String>();
-					for (int i = index-1; i < index; i++) {// 부모노드입력시키면 //TODO 여기
+					for (int i = index-1; i < index; i++) {// 부모노드입력시키면 
 						Node node = parent.getNode(i);
 						select.setNode(node, j++);
 						stackKey.push(node.getKey());
@@ -307,7 +307,7 @@ public class BTree {
 					logger.info("Step 2 " +select);
 					
 					// Index 변경
-					parent.setSubTree(select, index-1); //index 0에 새로 만든것을 넣음// TODO 여기
+					parent.setSubTree(select, index-1); //index 0에 새로 만든것을 넣음
 					parent.setSubTree(null, index); // index 0 으로 변경 하면서 null로 변경
 					if(parent.getNumberOfKeyNode() > (Math.round(subTreeSize / 2.0) - 1)){
 						finished = true;

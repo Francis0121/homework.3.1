@@ -1,11 +1,11 @@
 import java.util.Arrays;
 
 /**
- * Homework#6 B-Tree
+ * Homework#6 B-Tree(+Delete)
  * 
  * @author Francis
- * @version 0.1
- * @since 14.05.16
+ * @version 0.2
+ * @since 14.05.29
  */
 public class Tree {
 
