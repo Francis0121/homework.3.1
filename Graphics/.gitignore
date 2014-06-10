@@ -1,1 +1,9 @@
-*~$*.docx
+*.sdf
+*.suo
+Debug/
+*/Debug/*
+*/Debug/**
+ipch/
+*/ipch/*
+*/ipch/**
+*.opensdf
